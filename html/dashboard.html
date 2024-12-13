@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flood Evacuation Dashboard</title>
-    <link rel="stylesheet" href="./styles/dashboard.css">
+    <link rel="stylesheet" href="../docs/styles/dashboard.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
@@ -19,8 +19,16 @@
     </header>
 
     <main>
-        <div class="last-updated">
-            Last Updated: <span id="update-time">Loading...</span>
+        <div class="data-info">
+            <div class="last-updated">
+                Last Updated: <span id="update-time">Loading...</span>
+            </div>
+            <div class="data-source" id="data-source">
+                Loading data source...
+            </div>
+            <div class="update-frequency">
+                Updates every 30 minutes
+            </div>
         </div>
         
         <div class="stats-container">
@@ -56,9 +64,9 @@
     </main>
 
     <footer>
-        <p>Data source: JKM Malaysia (Static Demo Data)</p>
+        <p>Powered by GitHub Pages | Data updates every 30 minutes</p>
     </footer>
 
-    <script src="./js/dashboard.js"></script>
+    <script src="../docs/js/dashboard.js"></script>
 </body>
 </html>

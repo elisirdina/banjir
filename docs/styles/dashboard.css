@@ -108,10 +108,47 @@ main {
     margin-bottom: 1rem;
     color: #666;
     font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.data-info {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    text-align: center;
+}
+
+.data-info > div {
+    padding: 0.5rem;
+}
+
+.data-source {
+    color: #666;
+}
+
+.update-frequency {
+    color: #0366d6;
+    font-size: 0.9rem;
 }
 
 .dark-mode .last-updated {
     color: #8b949e;
+}
+
+.dark-mode .data-info {
+    background: #161b22;
+}
+
+.dark-mode .data-source {
+    color: #8b949e;
+}
+
+.dark-mode .update-frequency {
+    color: #58a6ff;
 }
 
 footer {
