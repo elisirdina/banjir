@@ -1,4 +1,4 @@
-name: Update Flood Data
+name: Update Flood Dataa
 on:
   schedule:
     - cron: '*/30 * * * *'  # Runs every 30 minutes
