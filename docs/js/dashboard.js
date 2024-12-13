@@ -13,12 +13,12 @@ const tooltip = d3.select('body')
     .attr('class', 'tooltip')
     .style('opacity', 0);
 
-// Fetch data from API
+// Fetch data from local JSON
 async function fetchData() {
     try {
-        const response = await fetch('https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-table-pps.php?a=0&b=0&seasonmain_id=208&seasonnegeri_id=');
-        const data = await response.json();
-        return data;
+        const response = await fetch('./data/flood_data.json');
+        const jsonData = await response.json();
+        return jsonData.data;
     } catch (error) {
         console.error('Error fetching data:', error);
         return [];
@@ -27,19 +27,17 @@ async function fetchData() {
 
 // Process data for visualization
 function processData(data) {
-    // Group data by district
-    const districtData = d3.group(data, d => d.daerah);
-    
     // Calculate totals for each district
-    const districtSummary = Array.from(districtData, ([key, value]) => ({
-        district: key,
-        evacuees: d3.sum(value, d => parseInt(d.jumlah_mangsa)),
-        pps: value.length
+    const districtSummary = data.map(d => ({
+        district: d.daerah,
+        evacuees: parseInt(d.jumlah_mangsa),
+        families: parseInt(d.jumlah_keluarga),
+        pps: d.pps_count
     }));
 
     // Calculate overall totals
     const totals = {
-        pps: data.length,
+        pps: d3.sum(data, d => d.pps_count),
         evacuees: d3.sum(data, d => parseInt(d.jumlah_mangsa)),
         families: d3.sum(data, d => parseInt(d.jumlah_keluarga))
     };
@@ -204,6 +202,13 @@ async function initDashboard() {
     }
 
     const { districtSummary, totals } = processData(rawData);
+    
+    // Update last updated time
+    const lastUpdated = new Date().toLocaleString('en-MY', {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+    });
+    document.getElementById('update-time').textContent = lastUpdated;
     
     updateStats(totals);
     createBarChart(districtSummary);
