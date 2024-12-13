@@ -4,7 +4,7 @@ darkModeToggle.addEventListener('click', (e) => {
     e.preventDefault();
     document.body.classList.toggle('dark-mode');
     const isDarkMode = document.body.classList.contains('dark-mode');
-    darkModeToggle.textContent = isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
+    darkModeToggle.textContent = isDarkMode ? '☀ Light Mode' : '🌙 Dark Mode';
 });
 
 // Initialize tooltips
@@ -18,17 +18,6 @@ async function fetchData() {
     try {
         const response = await fetch('./data/flood_data.json');
         const jsonData = await response.json();
-        
-        // Update last updated time
-        const lastUpdated = new Date(jsonData.last_updated);
-        document.getElementById('update-time').textContent = lastUpdated.toLocaleString('en-MY', {
-            dateStyle: 'medium',
-            timeStyle: 'short'
-        });
-        
-        // Add source information
-        document.getElementById('data-source').textContent = `Data source: ${jsonData.metadata.source}`;
-        
         return jsonData.data;
     } catch (error) {
         console.error('Error fetching data:', error);
@@ -38,22 +27,19 @@ async function fetchData() {
 
 // Process data for visualization
 function processData(data) {
-    // Group data by district
-    const districtData = d3.group(data, d => d.daerah);
-    
     // Calculate totals for each district
-    const districtSummary = Array.from(districtData, ([key, value]) => ({
-        district: key,
-        evacuees: d3.sum(value, d => parseInt(d.jumlah_mangsa) || 0),
-        families: d3.sum(value, d => parseInt(d.jumlah_keluarga) || 0),
-        pps: value.length
+    const districtSummary = data.map(d => ({
+        district: d.daerah,
+        evacuees: parseInt(d.jumlah_mangsa),
+        families: parseInt(d.jumlah_keluarga),
+        pps: d.pps_count
     }));
 
     // Calculate overall totals
     const totals = {
-        pps: data.length,
-        evacuees: d3.sum(data, d => parseInt(d.jumlah_mangsa) || 0),
-        families: d3.sum(data, d => parseInt(d.jumlah_keluarga) || 0)
+        pps: d3.sum(data, d => d.pps_count),
+        evacuees: d3.sum(data, d => parseInt(d.jumlah_mangsa)),
+        families: d3.sum(data, d => parseInt(d.jumlah_keluarga))
     };
 
     return { districtSummary, totals };
@@ -80,7 +66,7 @@ function createBarChart(data) {
         .attr('width', width + margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom)
         .append('g')
-        .attr('transform', `translate(${margin.left},${margin.top})`);
+        .attr('transform', translate(${margin.left},${margin.top}));
 
     // Create scales
     const x = d3.scaleBand()
@@ -108,7 +94,7 @@ function createBarChart(data) {
             tooltip.transition()
                 .duration(200)
                 .style('opacity', .9);
-            tooltip.html(`District: ${d.district}<br/>Evacuees: ${d.evacuees}`)
+            tooltip.html(District: ${d.district}<br/>Evacuees: ${d.evacuees})
                 .style('left', (event.pageX) + 'px')
                 .style('top', (event.pageY - 28) + 'px');
         })
@@ -120,7 +106,7 @@ function createBarChart(data) {
 
     // Add axes
     svg.append('g')
-        .attr('transform', `translate(0,${height})`)
+        .attr('transform', translate(0,${height}))
         .call(d3.axisBottom(x))
         .selectAll('text')
         .style('text-anchor', 'end')
@@ -146,7 +132,7 @@ function createPieChart(data) {
         .attr('width', width)
         .attr('height', height)
         .append('g')
-        .attr('transform', `translate(${width / 2},${height / 2})`);
+        .attr('transform', translate(${width / 2},${height / 2}));
 
     const color = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -169,7 +155,7 @@ function createPieChart(data) {
             tooltip.transition()
                 .duration(200)
                 .style('opacity', .9);
-            tooltip.html(`District: ${d.data.district}<br/>PPS: ${d.data.pps}`)
+            tooltip.html(District: ${d.data.district}<br/>PPS: ${d.data.pps})
                 .style('left', (event.pageX) + 'px')
                 .style('top', (event.pageY - 28) + 'px');
         })
@@ -216,6 +202,13 @@ async function initDashboard() {
     }
 
     const { districtSummary, totals } = processData(rawData);
+    
+    // Update last updated time
+    const lastUpdated = new Date().toLocaleString('en-MY', {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+    });
+    document.getElementById('update-time').textContent = lastUpdated;
     
     updateStats(totals);
     createBarChart(districtSummary);
