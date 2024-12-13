@@ -1,0 +1,35 @@
+{
+  "data": [
+    {
+      "daerah": "PASIR MAS",
+      "jumlah_mangsa": 2145,
+      "jumlah_keluarga": 534,
+      "pps_count": 12
+    },
+    {
+      "daerah": "KOTA BHARU",
+      "jumlah_mangsa": 1876,
+      "jumlah_keluarga": 456,
+      "pps_count": 8
+    },
+    {
+      "daerah": "TUMPAT",
+      "jumlah_mangsa": 1654,
+      "jumlah_keluarga": 398,
+      "pps_count": 10
+    },
+    {
+      "daerah": "TANAH MERAH",
+      "jumlah_mangsa": 987,
+      "jumlah_keluarga": 245,
+      "pps_count": 6
+    },
+    {
+      "daerah": "KUALA KRAI",
+      "jumlah_mangsa": 756,
+      "jumlah_keluarga": 189,
+      "pps_count": 5
+    }
+  ],
+  "last_updated": "2024-12-13T12:22:13+08:00"
+}
