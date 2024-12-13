@@ -103,6 +103,17 @@ main {
     border-bottom: 1px solid #e1e4e8;
 }
 
+.last-updated {
+    text-align: right;
+    margin-bottom: 1rem;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.dark-mode .last-updated {
+    color: #8b949e;
+}
+
 footer {
     text-align: center;
     padding: 2rem;
