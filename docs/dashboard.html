@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flood Evacuation Dashboard</title>
-    <link rel="stylesheet" href="styles/dashboard.css">
+    <link rel="stylesheet" href="./styles/dashboard.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
@@ -12,13 +12,17 @@
         <nav>
             <h1>Flood Evacuation Dashboard</h1>
             <ul>
-                <li><a href="index.html">Home</a></li>
+                <li><a href="./index.html">Home</a></li>
                 <li><a href="#" id="darkModeToggle">🌙 Dark Mode</a></li>
             </ul>
         </nav>
     </header>
 
     <main>
+        <div class="last-updated">
+            Last Updated: <span id="update-time">Loading...</span>
+        </div>
+        
         <div class="stats-container">
             <div class="stat-card" id="total-pps">
                 <h3>Total PPS</h3>
@@ -52,9 +56,9 @@
     </main>
 
     <footer>
-        <p>Data source: JKM Malaysia</p>
+        <p>Data source: JKM Malaysia (Static Demo Data)</p>
     </footer>
 
-    <script src="js/dashboard.js"></script>
+    <script src="./js/dashboard.js"></script>
 </body>
 </html>
