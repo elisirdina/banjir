@@ -13,12 +13,20 @@ const tooltip = d3.select('body')
     .attr('class', 'tooltip')
     .style('opacity', 0);
 
-// Fetch data from local JSON
+// Fetch data from JKM API
 async function fetchData() {
     try {
-        const response = await fetch('data/flood_data.json');
+        // Use our proxy server to avoid CORS issues
+        const response = await fetch('/api/flood-data');
         const jsonData = await response.json();
-        return jsonData.data;
+        
+        // Transform the data to match our expected format
+        return jsonData.map(item => ({
+            daerah: item.daerah,
+            jumlah_mangsa: item.jumlah_mangsa || '0',
+            jumlah_keluarga: item.jumlah_keluarga || '0',
+            pps_count: parseInt(item.pps_count || '0')
+        }));
     } catch (error) {
         console.error('Error fetching data:', error);
         return [];
@@ -47,29 +55,31 @@ function processData(data) {
 
 // Update summary statistics
 function updateStats(totals) {
-    document.querySelector('#total-pps .stat-value').textContent = totals.pps;
-    document.querySelector('#total-evacuees .stat-value').textContent = totals.evacuees;
-    document.querySelector('#total-families .stat-value').textContent = totals.families;
-    document.getElementById('update-time').textContent = new Date().toLocaleString('en-MY');
+    document.querySelector('#total-pps .stat-value').textContent = totals.pps.toLocaleString();
+    document.querySelector('#total-evacuees .stat-value').textContent = totals.evacuees.toLocaleString();
+    document.querySelector('#total-families .stat-value').textContent = totals.families.toLocaleString();
+    
+    // Update last updated time
+    const now = new Date();
+    document.getElementById('update-time').textContent = now.toLocaleString();
 }
 
 // Create bar chart
 function createBarChart(data) {
-    const margin = { top: 20, right: 20, bottom: 60, left: 60 };
+    const margin = {top: 20, right: 20, bottom: 60, left: 60};
     const width = 600 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
-    // Clear existing chart
-    d3.select('#bar-chart').html('');
+    // Clear previous chart
+    d3.select("#bar-chart").html("");
 
-    const svg = d3.select('#bar-chart')
-        .append('svg')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom)
-        .append('g')
-        .attr('transform', `translate(${margin.left},${margin.top})`);
+    const svg = d3.select("#bar-chart")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // Create scales
     const x = d3.scaleBand()
         .range([0, width])
         .padding(0.1);
@@ -77,64 +87,60 @@ function createBarChart(data) {
     const y = d3.scaleLinear()
         .range([height, 0]);
 
-    // Set domains
     x.domain(data.map(d => d.district));
     y.domain([0, d3.max(data, d => d.evacuees)]);
 
     // Add X axis
-    svg.append('g')
-        .attr('transform', `translate(0,${height})`)
+    svg.append("g")
+        .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(x))
-        .selectAll('text')
-        .style('text-anchor', 'end')
-        .attr('dx', '-.8em')
-        .attr('dy', '.15em')
-        .attr('transform', 'rotate(-45)');
+        .selectAll("text")
+        .attr("transform", "rotate(-45)")
+        .style("text-anchor", "end");
 
     // Add Y axis
-    svg.append('g')
+    svg.append("g")
         .call(d3.axisLeft(y));
 
     // Add bars
-    svg.selectAll('.bar')
+    svg.selectAll(".bar")
         .data(data)
-        .enter()
-        .append('rect')
-        .attr('class', 'bar')
-        .attr('x', d => x(d.district))
-        .attr('width', x.bandwidth())
-        .attr('y', d => y(d.evacuees))
-        .attr('height', d => height - y(d.evacuees))
-        .on('mouseover', (event, d) => {
+        .enter().append("rect")
+        .attr("class", "bar")
+        .attr("x", d => x(d.district))
+        .attr("width", x.bandwidth())
+        .attr("y", d => y(d.evacuees))
+        .attr("height", d => height - y(d.evacuees))
+        .on("mouseover", function(event, d) {
             tooltip.transition()
                 .duration(200)
-                .style('opacity', .9);
+                .style("opacity", .9);
             tooltip.html(`District: ${d.district}<br/>Evacuees: ${d.evacuees}`)
-                .style('left', (event.pageX) + 'px')
-                .style('top', (event.pageY - 28) + 'px');
+                .style("left", (event.pageX) + "px")
+                .style("top", (event.pageY - 28) + "px");
         })
-        .on('mouseout', () => {
+        .on("mouseout", function(d) {
             tooltip.transition()
                 .duration(500)
-                .style('opacity', 0);
+                .style("opacity", 0);
         });
 }
 
 // Create pie chart
 function createPieChart(data) {
-    const width = 450;
-    const height = 450;
+    const width = 400;
+    const height = 400;
     const radius = Math.min(width, height) / 2;
 
-    // Clear existing chart
-    d3.select('#pie-chart').html('');
+    // Clear previous chart
+    d3.select("#pie-chart").html("");
 
-    const svg = d3.select('#pie-chart')
-        .append('svg')
-        .attr('width', width)
-        .attr('height', height)
-        .append('g')
-        .attr('transform', `translate(${width / 2},${height / 2})`);
+    const svg = d3.select("#pie-chart")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .append("g")
+        .attr("transform", `translate(${width/2},${height/2})`);
 
     const color = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -145,79 +151,69 @@ function createPieChart(data) {
         .innerRadius(0)
         .outerRadius(radius);
 
-    const arcs = svg.selectAll('arc')
+    const arcs = svg.selectAll("arc")
         .data(pie(data))
         .enter()
-        .append('g');
+        .append("g");
 
-    arcs.append('path')
-        .attr('d', arc)
-        .attr('fill', (d, i) => color(i))
-        .on('mouseover', (event, d) => {
+    arcs.append("path")
+        .attr("d", arc)
+        .attr("fill", (d, i) => color(i))
+        .on("mouseover", function(event, d) {
             tooltip.transition()
                 .duration(200)
-                .style('opacity', .9);
+                .style("opacity", .9);
             tooltip.html(`District: ${d.data.district}<br/>PPS Count: ${d.data.pps}`)
-                .style('left', (event.pageX) + 'px')
-                .style('top', (event.pageY - 28) + 'px');
+                .style("left", (event.pageX) + "px")
+                .style("top", (event.pageY - 28) + "px");
         })
-        .on('mouseout', () => {
+        .on("mouseout", function(d) {
             tooltip.transition()
                 .duration(500)
-                .style('opacity', 0);
+                .style("opacity", 0);
         });
 }
 
 // Create data table
 function createDataTable(data) {
-    const table = d3.select('#data-table')
-        .html('')
-        .append('table')
-        .attr('class', 'data-table');
+    const table = d3.select("#data-table")
+        .html("")
+        .append("table")
+        .attr("class", "data-table");
 
-    const headers = ['District', 'Evacuees', 'Families', 'PPS'];
+    // Add header
+    const header = table.append("thead").append("tr");
+    header.append("th").text("District");
+    header.append("th").text("PPS");
+    header.append("th").text("Evacuees");
+    header.append("th").text("Families");
 
-    table.append('thead')
-        .append('tr')
-        .selectAll('th')
-        .data(headers)
-        .enter()
-        .append('th')
-        .text(d => d);
-
-    const rows = table.append('tbody')
-        .selectAll('tr')
+    // Add rows
+    const tbody = table.append("tbody");
+    const rows = tbody.selectAll("tr")
         .data(data)
         .enter()
-        .append('tr');
+        .append("tr");
 
-    rows.append('td').text(d => d.district);
-    rows.append('td').text(d => d.evacuees);
-    rows.append('td').text(d => d.families);
-    rows.append('td').text(d => d.pps);
+    rows.append("td").text(d => d.district);
+    rows.append("td").text(d => d.pps);
+    rows.append("td").text(d => d.evacuees);
+    rows.append("td").text(d => d.families);
 }
 
 // Initialize dashboard
 async function initDashboard() {
     try {
-        const data = await fetchData();
-        const { districtSummary, totals } = processData(data);
+        const rawData = await fetchData();
+        const { districtSummary, totals } = processData(rawData);
         
         updateStats(totals);
         createBarChart(districtSummary);
         createPieChart(districtSummary);
         createDataTable(districtSummary);
 
-        // Update data every 5 minutes
-        setInterval(async () => {
-            const newData = await fetchData();
-            const { districtSummary: newSummary, totals: newTotals } = processData(newData);
-            
-            updateStats(newTotals);
-            createBarChart(newSummary);
-            createPieChart(newSummary);
-            createDataTable(newSummary);
-        }, 5 * 60 * 1000);
+        // Auto-refresh every 5 minutes
+        setTimeout(initDashboard, 5 * 60 * 1000);
     } catch (error) {
         console.error('Error initializing dashboard:', error);
     }
