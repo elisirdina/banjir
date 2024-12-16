@@ -96,7 +96,13 @@ header h1 {
     padding: 1.5rem;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.table-responsive {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -1.5rem;
+    padding: 0 1.5rem;
 }
 
 .table-container h3 {
@@ -108,22 +114,38 @@ table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 1rem;
+    min-width: 600px; /* Ensure table doesn't get too squeezed */
 }
 
 th, td {
     padding: 0.75rem;
     text-align: left;
     border-bottom: 1px solid #eee;
+    white-space: nowrap;
+}
+
+td {
+    white-space: normal;
 }
 
 th {
     background-color: #f8f9fa;
     font-weight: 600;
     color: #2c3e50;
+    position: sticky;
+    top: 0;
+    z-index: 1;
 }
 
-tr:hover {
+tbody tr:hover {
     background-color: #f8f9fa;
+}
+
+/* Last updated text */
+#last-updated {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-top: 0.5rem;
 }
 
 /* Error messages */
