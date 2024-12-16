@@ -1,0 +1,207 @@
+// Smooth scrolling for navigation links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+
+// Add active class to navigation items based on scroll position
+window.addEventListener('scroll', () => {
+    const sections = document.querySelectorAll('section');
+    const navLinks = document.querySelectorAll('nav ul li a');
+    
+    let current = '';
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        if (window.pageYOffset >= sectionTop - 60) {
+            current = section.getAttribute('id');
+        }
+    });
+
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href').substring(1) === current) {
+            link.classList.add('active');
+        }
+    });
+});
+
+// Fetch data from the API
+async function fetchData() {
+    try {
+        const response = await fetch('https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-table-pps.php?a=0&b=0&seasonmain_id=208&seasonnegeri_id=');
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        return null;
+    }
+}
+
+// Update statistics cards
+function updateStats(data) {
+    const totalPPS = data.length;
+    const totalEvacuees = data.reduce((sum, item) => sum + parseInt(item.jumlah_mangsa), 0);
+    const totalFamilies = data.reduce((sum, item) => sum + parseInt(item.jumlah_keluarga), 0);
+
+    document.querySelector('#total-pps .stat-value').textContent = totalPPS.toLocaleString();
+    document.querySelector('#total-evacuees .stat-value').textContent = totalEvacuees.toLocaleString();
+    document.querySelector('#total-families .stat-value').textContent = totalFamilies.toLocaleString();
+}
+
+// Create bar chart for evacuees by state
+function createStateChart(data) {
+    // Group data by state
+    const stateData = d3.group(data, d => d.negeri);
+    const stateEvacuees = Array.from(stateData, ([state, items]) => ({
+        state,
+        evacuees: d3.sum(items, d => parseInt(d.jumlah_mangsa))
+    })).sort((a, b) => b.evacuees - a.evacuees);
+
+    // Set up dimensions
+    const margin = {top: 20, right: 20, bottom: 60, left: 60};
+    const width = document.querySelector('#state-chart .chart-area').clientWidth - margin.left - margin.right;
+    const height = document.querySelector('#state-chart .chart-area').clientHeight - margin.top - margin.bottom;
+
+    // Clear previous chart
+    d3.select('#state-chart .chart-area').html('');
+
+    // Create SVG
+    const svg = d3.select('#state-chart .chart-area')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+
+    // Create scales
+    const x = d3.scaleBand()
+        .domain(stateEvacuees.map(d => d.state))
+        .range([0, width])
+        .padding(0.1);
+
+    const y = d3.scaleLinear()
+        .domain([0, d3.max(stateEvacuees, d => d.evacuees)])
+        .range([height, 0]);
+
+    // Create axes
+    svg.append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(x))
+        .selectAll('text')
+        .attr('transform', 'rotate(-45)')
+        .style('text-anchor', 'end');
+
+    svg.append('g')
+        .call(d3.axisLeft(y));
+
+    // Create bars
+    svg.selectAll('rect')
+        .data(stateEvacuees)
+        .enter()
+        .append('rect')
+        .attr('x', d => x(d.state))
+        .attr('y', d => y(d.evacuees))
+        .attr('width', x.bandwidth())
+        .attr('height', d => height - y(d.evacuees))
+        .attr('fill', '#3498db');
+}
+
+// Create pie chart for PPS distribution
+function createPPSChart(data) {
+    // Group data by district
+    const districtData = d3.group(data, d => d.daerah);
+    const districtCounts = Array.from(districtData, ([district, items]) => ({
+        district,
+        count: items.length
+    })).sort((a, b) => b.count - a.count);
+
+    // Set up dimensions
+    const width = document.querySelector('#pps-chart .chart-area').clientWidth;
+    const height = document.querySelector('#pps-chart .chart-area').clientHeight;
+    const radius = Math.min(width, height) / 2;
+
+    // Clear previous chart
+    d3.select('#pps-chart .chart-area').html('');
+
+    // Create SVG
+    const svg = d3.select('#pps-chart .chart-area')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height)
+        .append('g')
+        .attr('transform', `translate(${width/2},${height/2})`);
+
+    // Create color scale
+    const color = d3.scaleOrdinal(d3.schemeCategory10);
+
+    // Create pie chart
+    const pie = d3.pie()
+        .value(d => d.count);
+
+    const arc = d3.arc()
+        .innerRadius(radius * 0.3)
+        .outerRadius(radius * 0.6);
+
+    // Add the arcs
+    const arcs = svg.selectAll('arc')
+        .data(pie(districtCounts))
+        .enter()
+        .append('g');
+
+    arcs.append('path')
+        .attr('d', arc)
+        .attr('fill', (d, i) => color(i));
+
+    // Add labels
+    arcs.append('text')
+        .attr('transform', d => `translate(${arc.centroid(d)})`)
+        .attr('text-anchor', 'middle')
+        .text(d => d.data.district)
+        .style('font-size', '10px')
+        .style('fill', 'white');
+}
+
+// Populate data table
+function populateTable(data) {
+    const tbody = document.querySelector('#pps-table tbody');
+    tbody.innerHTML = '';
+
+    data.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${item.negeri}</td>
+            <td>${item.daerah}</td>
+            <td>${item.nama_pps}</td>
+            <td>${parseInt(item.jumlah_keluarga).toLocaleString()}</td>
+            <td>${parseInt(item.jumlah_mangsa).toLocaleString()}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// Initialize dashboard
+async function initDashboard() {
+    const data = await fetchData();
+    if (data) {
+        updateStats(data);
+        createStateChart(data);
+        createPPSChart(data);
+        populateTable(data);
+    }
+}
+
+// Handle window resize
+window.addEventListener('resize', () => {
+    initDashboard();
+});
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', initDashboard);
