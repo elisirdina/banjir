@@ -241,7 +241,7 @@ function populateTable(data) {
             <td>${item.daerah}</td>
             <td>${item.mukim}</td>
             <td>${parseInt(item.buka).toLocaleString()}</td>
-            <td>${parseInt(item.kapasiti).toLocaleString()}</td>
+            <td>${item.kapasiti}</td>
             <td>${parseInt(item.mangsa).toLocaleString()}</td>
             <td>${parseInt(item.keluarga).toLocaleString()}</td>
             <td>${parseInt(item.lelaki_dewasa).toLocaleString()}</td>
