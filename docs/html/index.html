@@ -47,20 +47,22 @@
 
             <div class="table-container">
                 <h3>Evacuation Centers Details</h3>
-                <table id="pps-table">
-                    <thead>
-                        <tr>
-                            <th>State</th>
-                            <th>District</th>
-                            <th>PPS Name</th>
-                            <th>Families</th>
-                            <th>Total Evacuees</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Data will be populated by JavaScript -->
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table id="pps-table">
+                        <thead>
+                            <tr>
+                                <th>State</th>
+                                <th>District</th>
+                                <th>PPS Name</th>
+                                <th>Families</th>
+                                <th>Total Evacuees</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </main>
@@ -68,6 +70,7 @@
     <footer>
         <div class="container">
             <p>Data source: JKM Malaysia</p>
+            <p id="last-updated"></p>
         </div>
     </footer>
 
