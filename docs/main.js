@@ -236,11 +236,20 @@ function populateTable(data) {
     data.forEach(item => {
         const row = document.createElement('tr');
         row.innerHTML = `
+            <td>${item.nama}</td>
             <td>${item.negeri}</td>
             <td>${item.daerah}</td>
-            <td>${item.nama_pps}</td>
-            <td>${parseInt(item.jumlah_keluarga).toLocaleString()}</td>
-            <td>${parseInt(item.jumlah_mangsa).toLocaleString()}</td>
+            <td>${item.mukim}</td>
+            <td>${parseInt(item.buka).toLocaleString()}</td>
+            <td>${parseInt(item.kapasiti).toLocaleString()}</td>
+            <td>${parseInt(item.mangsa).toLocaleString()}</td>
+            <td>${parseInt(item.keluarga).toLocaleString()}</td>
+            <td>${parseInt(item.lelaki_dewasa).toLocaleString()}</td>
+            <td>${parseInt(item.perempuan_dewasa).toLocaleString()}</td>
+            <td>${parseInt(item.kanak_lelaki).toLocaleString()}</td>
+            <td>${parseInt(item.kanak_perempuan).toLocaleString()}</td>
+            <td>${parseInt(item.bayi_lelaki).toLocaleString()}</td>
+            <td>${parseInt(item.bayi_perempuan).toLocaleString()}</td>
         `;
         tbody.appendChild(row);
     });
