@@ -121,7 +121,7 @@ function createStateChart(data) {
     const stateData = d3.group(data, d => d.negeri);
     const stateEvacuees = Array.from(stateData, ([state, items]) => ({
         state,
-        evacuees: d3.sum(items, d => parseInt(d.jumlah_mangsa))
+        evacuees: d3.sum(items, d => parseInt(d.mangsa))
     })).sort((a, b) => b.evacuees - a.evacuees);
 
     // Set up dimensions
