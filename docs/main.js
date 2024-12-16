@@ -50,8 +50,11 @@ async function fetchData() {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const data = await response.json();
-        console.log('Fetched data:', data);  // Add logging to check the response
+        const result = await response.json();
+        console.log('Fetched data:', result);
+
+        // Extract the "ppsbuka" array
+        const data = result.ppsbuka || []; // Default to an empty array if undefined
         return data;
 
     } catch (error) {
@@ -104,8 +107,8 @@ function getSampleData() {
 // Update statistics cards
 function updateStats(data) {
     const totalPPS = data.length;
-    const totalEvacuees = data.reduce((sum, item) => sum + parseInt(item.jumlah_mangsa), 0);
-    const totalFamilies = data.reduce((sum, item) => sum + parseInt(item.jumlah_keluarga), 0);
+    const totalEvacuees = data.reduce((sum, item) => sum + parseInt(item.mangsa || 0), 0);
+    const totalFamilies = data.reduce((sum, item) => sum + parseInt(item.keluarga || 0), 0);
 
     document.querySelector('#total-pps .stat-value').textContent = totalPPS.toLocaleString();
     document.querySelector('#total-evacuees .stat-value').textContent = totalEvacuees.toLocaleString();
