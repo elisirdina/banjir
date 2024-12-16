@@ -16,7 +16,7 @@ const tooltip = d3.select('body')
 // Fetch data from local JSON
 async function fetchData() {
     try {
-        const response = await fetch('./data/flood_data.json');
+        const response = await fetch('../data/flood_data.json');
         const jsonData = await response.json();
         return jsonData.data;
     } catch (error) {
@@ -50,6 +50,7 @@ function updateStats(totals) {
     document.querySelector('#total-pps .stat-value').textContent = totals.pps;
     document.querySelector('#total-evacuees .stat-value').textContent = totals.evacuees;
     document.querySelector('#total-families .stat-value').textContent = totals.families;
+    document.getElementById('update-time').textContent = new Date().toLocaleString('en-MY');
 }
 
 // Create bar chart
@@ -66,7 +67,7 @@ function createBarChart(data) {
         .attr('width', width + margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom)
         .append('g')
-        .attr('transform', translate(${margin.left},${margin.top}));
+        .attr('transform', `translate(${margin.left},${margin.top})`);
 
     // Create scales
     const x = d3.scaleBand()
@@ -79,6 +80,20 @@ function createBarChart(data) {
     // Set domains
     x.domain(data.map(d => d.district));
     y.domain([0, d3.max(data, d => d.evacuees)]);
+
+    // Add X axis
+    svg.append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(x))
+        .selectAll('text')
+        .style('text-anchor', 'end')
+        .attr('dx', '-.8em')
+        .attr('dy', '.15em')
+        .attr('transform', 'rotate(-45)');
+
+    // Add Y axis
+    svg.append('g')
+        .call(d3.axisLeft(y));
 
     // Add bars
     svg.selectAll('.bar')
@@ -94,7 +109,7 @@ function createBarChart(data) {
             tooltip.transition()
                 .duration(200)
                 .style('opacity', .9);
-            tooltip.html(District: ${d.district}<br/>Evacuees: ${d.evacuees})
+            tooltip.html(`District: ${d.district}<br/>Evacuees: ${d.evacuees}`)
                 .style('left', (event.pageX) + 'px')
                 .style('top', (event.pageY - 28) + 'px');
         })
@@ -103,25 +118,12 @@ function createBarChart(data) {
                 .duration(500)
                 .style('opacity', 0);
         });
-
-    // Add axes
-    svg.append('g')
-        .attr('transform', translate(0,${height}))
-        .call(d3.axisBottom(x))
-        .selectAll('text')
-        .style('text-anchor', 'end')
-        .attr('dx', '-.8em')
-        .attr('dy', '.15em')
-        .attr('transform', 'rotate(-45)');
-
-    svg.append('g')
-        .call(d3.axisLeft(y));
 }
 
 // Create pie chart
 function createPieChart(data) {
-    const width = 400;
-    const height = 400;
+    const width = 450;
+    const height = 450;
     const radius = Math.min(width, height) / 2;
 
     // Clear existing chart
@@ -132,7 +134,7 @@ function createPieChart(data) {
         .attr('width', width)
         .attr('height', height)
         .append('g')
-        .attr('transform', translate(${width / 2},${height / 2}));
+        .attr('transform', `translate(${width / 2},${height / 2})`);
 
     const color = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -143,19 +145,19 @@ function createPieChart(data) {
         .innerRadius(0)
         .outerRadius(radius);
 
-    // Add slices
-    const slices = svg.selectAll('path')
+    const arcs = svg.selectAll('arc')
         .data(pie(data))
         .enter()
-        .append('path')
-        .attr('class', 'pie-slice')
+        .append('g');
+
+    arcs.append('path')
         .attr('d', arc)
         .attr('fill', (d, i) => color(i))
         .on('mouseover', (event, d) => {
             tooltip.transition()
                 .duration(200)
                 .style('opacity', .9);
-            tooltip.html(District: ${d.data.district}<br/>PPS: ${d.data.pps})
+            tooltip.html(`District: ${d.data.district}<br/>PPS Count: ${d.data.pps}`)
                 .style('left', (event.pageX) + 'px')
                 .style('top', (event.pageY - 28) + 'px');
         })
@@ -169,51 +171,56 @@ function createPieChart(data) {
 // Create data table
 function createDataTable(data) {
     const table = d3.select('#data-table')
-        .append('table');
+        .html('')
+        .append('table')
+        .attr('class', 'data-table');
 
-    // Add table header
+    const headers = ['District', 'Evacuees', 'Families', 'PPS'];
+
     table.append('thead')
         .append('tr')
         .selectAll('th')
-        .data(['District', 'PPS Count', 'Total Evacuees'])
+        .data(headers)
         .enter()
         .append('th')
         .text(d => d);
 
-    // Add table rows
-    table.append('tbody')
+    const rows = table.append('tbody')
         .selectAll('tr')
         .data(data)
         .enter()
-        .append('tr')
-        .html(d => `
-            <td>${d.district}</td>
-            <td>${d.pps}</td>
-            <td>${d.evacuees}</td>
-        `);
+        .append('tr');
+
+    rows.append('td').text(d => d.district);
+    rows.append('td').text(d => d.evacuees);
+    rows.append('td').text(d => d.families);
+    rows.append('td').text(d => d.pps);
 }
 
 // Initialize dashboard
 async function initDashboard() {
-    const rawData = await fetchData();
-    if (rawData.length === 0) {
-        console.error('No data received');
-        return;
-    }
+    try {
+        const data = await fetchData();
+        const { districtSummary, totals } = processData(data);
+        
+        updateStats(totals);
+        createBarChart(districtSummary);
+        createPieChart(districtSummary);
+        createDataTable(districtSummary);
 
-    const { districtSummary, totals } = processData(rawData);
-    
-    // Update last updated time
-    const lastUpdated = new Date().toLocaleString('en-MY', {
-        dateStyle: 'medium',
-        timeStyle: 'short'
-    });
-    document.getElementById('update-time').textContent = lastUpdated;
-    
-    updateStats(totals);
-    createBarChart(districtSummary);
-    createPieChart(districtSummary);
-    createDataTable(districtSummary);
+        // Update data every 5 minutes
+        setInterval(async () => {
+            const newData = await fetchData();
+            const { districtSummary: newSummary, totals: newTotals } = processData(newData);
+            
+            updateStats(newTotals);
+            createBarChart(newSummary);
+            createPieChart(newSummary);
+            createDataTable(newSummary);
+        }, 5 * 60 * 1000);
+    } catch (error) {
+        console.error('Error initializing dashboard:', error);
+    }
 }
 
 // Start the dashboard
