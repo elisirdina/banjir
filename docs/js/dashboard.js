@@ -16,7 +16,7 @@ const tooltip = d3.select('body')
 // Fetch data from local JSON
 async function fetchData() {
     try {
-        const response = await fetch('../data/flood_data.json');
+        const response = await fetch('data/flood_data.json');
         const jsonData = await response.json();
         return jsonData.data;
     } catch (error) {
