@@ -36,14 +36,18 @@ window.addEventListener('scroll', () => {
 // Fetch data from the API
 async function fetchData() {
     try {
-        // First try the direct API call
-        const response = await fetch('https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-table-pps.php?a=0&b=0&seasonmain_id=208&seasonnegeri_id=', {
-            mode: 'cors',
+        // Proxy URL for CORS handling
+        const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+        const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-table-pps.php?a=0&b=0&seasonmain_id=208&seasonnegeri_id=';
+        
+        // Use proxyUrl + apiUrl to make the request
+        const response = await fetch(proxyUrl + apiUrl, {
+            mode: 'cors',  // Ensure the fetch request still handles CORS correctly
             headers: {
                 'Accept': 'application/json'
             }
         });
-        
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
