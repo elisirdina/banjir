@@ -264,16 +264,27 @@ async function initDashboard() {
     document.querySelectorAll('.stat-value').forEach(el => {
         el.textContent = 'Loading...';
     });
-    
+
     const data = await fetchData();
     if (data && data.length > 0) {
+        // Prepare chart data
+        const chartData = {
+            labels: data.map(item => item.nama_pps), // Extract PPS names
+            datasets: [{
+                data: data.map(item => parseInt(item.jumlah_mangsa)), // Extract evacuee counts
+                label: 'Number of Evacuees'
+            }]
+        };
+
+        console.log('Chart Data:', chartData); // Debugging purposes
+
         updateStats(data);
         createStateChart(data);
         createPPSChart(data);
         populateTable(data);
         updateTimestamp();
     } else {
-        // Show error state
+        // Handle errors
         document.querySelectorAll('.stat-value').forEach(el => {
             el.textContent = 'Error loading data';
         });
