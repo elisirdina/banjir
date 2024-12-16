@@ -16,7 +16,7 @@ const tooltip = d3.select('body')
 // Fetch data from local JSON
 async function fetchData() {
     try {
-        const response = await fetch('../data/flood_data.json');
+        const response = await fetch('./data/flood_data.json');
         const jsonData = await response.json();
         return jsonData.data;
     } catch (error) {
@@ -66,7 +66,7 @@ function createBarChart(data) {
         .attr('width', width + margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom)
         .append('g')
-        .attr('transform', `translate(${margin.left},${margin.top})`);
+        .attr('transform', translate(${margin.left},${margin.top}));
 
     // Create scales
     const x = d3.scaleBand()
@@ -94,7 +94,7 @@ function createBarChart(data) {
             tooltip.transition()
                 .duration(200)
                 .style('opacity', .9);
-            tooltip.html(`District: ${d.district}<br/>Evacuees: ${d.evacuees}`)
+            tooltip.html(District: ${d.district}<br/>Evacuees: ${d.evacuees})
                 .style('left', (event.pageX) + 'px')
                 .style('top', (event.pageY - 28) + 'px');
         })
@@ -106,7 +106,7 @@ function createBarChart(data) {
 
     // Add axes
     svg.append('g')
-        .attr('transform', `translate(0,${height})`)
+        .attr('transform', translate(0,${height}))
         .call(d3.axisBottom(x))
         .selectAll('text')
         .style('text-anchor', 'end')
@@ -132,7 +132,7 @@ function createPieChart(data) {
         .attr('width', width)
         .attr('height', height)
         .append('g')
-        .attr('transform', `translate(${width / 2},${height / 2})`);
+        .attr('transform', translate(${width / 2},${height / 2}));
 
     const color = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -155,7 +155,7 @@ function createPieChart(data) {
             tooltip.transition()
                 .duration(200)
                 .style('opacity', .9);
-            tooltip.html(`District: ${d.data.district}<br/>PPS: ${d.data.pps}`)
+            tooltip.html(District: ${d.data.district}<br/>PPS: ${d.data.pps})
                 .style('left', (event.pageX) + 'px')
                 .style('top', (event.pageY - 28) + 'px');
         })
