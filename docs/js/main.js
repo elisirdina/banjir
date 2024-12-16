@@ -239,6 +239,21 @@ function populateTable(data) {
     });
 }
 
+// Update last updated timestamp
+function updateTimestamp() {
+    const now = new Date();
+    const options = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        timeZoneName: 'short'
+    };
+    document.getElementById('last-updated').textContent = `Last updated: ${now.toLocaleDateString('en-MY', options)}`;
+}
+
 // Initialize dashboard
 async function initDashboard() {
     // Show loading state
@@ -252,6 +267,7 @@ async function initDashboard() {
         createStateChart(data);
         createPPSChart(data);
         populateTable(data);
+        updateTimestamp();
     } else {
         // Show error state
         document.querySelectorAll('.stat-value').forEach(el => {
@@ -260,6 +276,7 @@ async function initDashboard() {
         document.querySelector('#state-chart .chart-area').innerHTML = '<p class="error-message">Error loading chart data</p>';
         document.querySelector('#pps-chart .chart-area').innerHTML = '<p class="error-message">Error loading chart data</p>';
         document.querySelector('#pps-table tbody').innerHTML = '<tr><td colspan="5">Error loading table data</td></tr>';
+        document.getElementById('last-updated').textContent = 'Failed to update data';
     }
 }
 
