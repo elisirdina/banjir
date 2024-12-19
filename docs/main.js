@@ -37,9 +37,9 @@ window.addEventListener('scroll', () => {
 async function fetchData() {
     try {
         const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-table-pps.php?a=0&b=0&seasonmain_id=208&seasonnegeri_id=';
-        
-        const response = await fetch(apiUrl, {
-            mode: 'cors',
+        const proxyUrl = 'https://cors-anywhere.herokuapp.com/'; // Use a CORS proxy
+
+        const response = await fetch(proxyUrl + apiUrl, {
             headers: {
                 'Accept': 'application/json'
             }
