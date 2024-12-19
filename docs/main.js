@@ -37,7 +37,7 @@ window.addEventListener('scroll', () => {
 async function fetchData() {
     try {
         const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-table-pps.php?a=0&b=0&seasonmain_id=208&seasonnegeri_id=';
-        const proxyUrl = 'http://localhost:3000/proxy?url='; // Use your own proxy server
+        const proxyUrl = 'https://api.allorigins.win/get?url='; // Use a different CORS proxy service
 
         const response = await fetch(proxyUrl + encodeURIComponent(apiUrl), {
             headers: {
@@ -50,10 +50,9 @@ async function fetchData() {
         }
 
         const result = await response.json();
-        console.log('Fetched data:', result);
+        const data = JSON.parse(result.contents).ppsbuka || []; // Extract the "ppsbuka" array
+        console.log('Fetched data:', data);
 
-        // Extract the "ppsbuka" array
-        const data = result.ppsbuka || []; // Default to an empty array if undefined
         return data;
 
     } catch (error) {
