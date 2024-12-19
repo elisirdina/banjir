@@ -90,6 +90,12 @@ header h1 {
     height: 300px;
 }
 
+/* Map container */
+#map {
+    height: 500px;
+    margin-bottom: 2rem;
+}
+
 /* Table styles */
 .table-container {
     background: white;

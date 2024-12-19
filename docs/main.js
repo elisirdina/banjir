@@ -268,6 +268,35 @@ function updateTimestamp() {
     document.getElementById('last-updated').textContent = `Last updated: ${now.toLocaleDateString('en-MY', options)}`;
 }
 
+// Load and display the map of Malaysia
+async function loadMap() {
+    const mapContainer = document.getElementById('map');
+    if (!mapContainer) return;
+
+    const map = L.map('map').setView([4.2105, 101.9758], 6); // Center of Malaysia
+
+    // Add OpenStreetMap tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Load GeoJSON data for districts
+    const semenanjungGeoJson = await fetch('https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson').then(res => res.json());
+    const borneoGeoJson = await fetch('https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson').then(res => res.json());
+
+    // Add GeoJSON layers to the map
+    L.geoJSON(semenanjungGeoJson).addTo(map);
+    L.geoJSON(borneoGeoJson).addTo(map);
+
+    // Fetch and add evacuation center data
+    const evacuationData = await fetch('https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0').then(res => res.json());
+
+    evacuationData.forEach(center => {
+        const marker = L.marker([center.latitude, center.longitude]).addTo(map);
+        marker.bindPopup(`<b>${center.nama}</b><br>${center.daerah}, ${center.negeri}<br>Evacuees: ${center.jumlah_mangsa}`);
+    });
+}
+
 // Initialize dashboard
 async function initDashboard() {
     // Show loading state
@@ -293,6 +322,7 @@ async function initDashboard() {
         createPPSChart(data);
         populateTable(data);
         updateTimestamp();
+        await loadMap();
     } else {
         // Handle errors
         document.querySelectorAll('.stat-value').forEach(el => {
