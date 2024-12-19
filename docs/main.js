@@ -37,13 +37,14 @@ window.addEventListener('scroll', () => {
 async function fetchData() {
     try {
         const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-table-pps.php?a=0&b=0&seasonmain_id=208&seasonnegeri_id=';
-        const proxyUrl = 'https://api.allorigins.win/get?url='; // Use a different CORS proxy service
+        const proxyUrl = 'http://localhost:3000/proxy?url='; // Use the local proxy server
 
         const response = await fetch(proxyUrl + encodeURIComponent(apiUrl), {
             headers: {
                 'Accept': 'application/json'
             }
         });
+
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
