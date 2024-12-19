@@ -44,10 +44,11 @@ async function fetchData() {
                 'Accept': 'application/json'
             }
         });
-
+        
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+            const errorText = await response.text();  // Capture response text for better debugging
+            throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+        }        
 
         const result = await response.json();
         const data = JSON.parse(result.contents).ppsbuka || []; // Extract the "ppsbuka" array
