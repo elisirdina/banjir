@@ -271,7 +271,7 @@ function updateTimestamp() {
 // Load and display the map of Malaysia
 async function loadMap() {
     const mapContainer = document.getElementById('map');
-    if (!mapContainer) return
+    if (!mapContainer) return;
 
     const map = L.map('map').setView([4.2105, 101.9758], 6); // Center of Malaysia
 
