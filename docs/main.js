@@ -34,36 +34,30 @@ window.addEventListener('scroll', () => {
 });
 
 // Fetch data from the API
-async function fetchData() {
+async function initDashboard() {
     try {
-        const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-table-pps.php?a=0&b=0&seasonmain_id=208&seasonnegeri_id=';
-        const proxyUrl = 'https://api.allorigins.win/get?url='; // Use a CORS proxy service
+        const data = await fetchData();
 
-        const response = await fetch(proxyUrl + encodeURIComponent(apiUrl), {
-            headers: {
-                'Accept': 'application/json'
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        // Update the dashboard UI
+        const ppsBukaElement = document.getElementById("ppsbuka");
+        if (ppsBukaElement) {
+            ppsBukaElement.textContent = data; // Display the fetched data (0 if no ppsbuka)
         }
 
-        const result = await response.json();
-        const parsedData = JSON.parse(result.contents);
+        console.log("Dashboard updated with ppsbuka data:", data);
 
-        // Safely extract ppsbuka or set to 0 if it's null or undefined
-        const data = parsedData && parsedData.ppsbuka ? parsedData.ppsbuka : 0;
-        console.log('Fetched data:', data);
-
-        return data;
-
+        // Additional logic (e.g., map, charts)
+        loadMap();
     } catch (error) {
-        console.error('Error fetching data:', error);
-        return 0; // Return 0 instead of using dummy data
+        console.error("Error initializing dashboard:", error);
+
+        // Handle error in the UI gracefully
+        const ppsBukaElement = document.getElementById("ppsbuka");
+        if (ppsBukaElement) {
+            ppsBukaElement.textContent = "0"; // Ensure 0 is displayed even in error cases
+        }
     }
 }
-
 
 // Sample data for demonstration when API is not accessible
 function getSampleData() {
