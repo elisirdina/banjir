@@ -50,7 +50,7 @@ async function fetchData() {
         }
 
         const result = await response.json();
-        const data = JSON.parse(result.contents).ppsbuka || []; // Extract the "ppsbuka" array
+        const data = result.contents ? JSON.parse(result.contents).ppsbuka || [] : []; // Check if contents is not null
         console.log('Fetched data:', data);
 
         return data;
