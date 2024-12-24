@@ -51,11 +51,17 @@ async function fetchData() {
 
         const result = await response.json();
         console.log('Raw API Response:', result); // Debugging
-        const data = JSON.parse(result.contents || '{}').ppsbuka || []; // Safer parsing
-        console.log('Parsed Data:', data); // Debugging
+        const contents = result.contents || null;
 
+        if (!contents) {
+            throw new Error("No contents in response.");
+        }
+
+        const parsedData = JSON.parse(contents);
+        console.log('Parsed API Response:', parsedData); // Debugging
+
+        const data = parsedData.ppsbuka || [];
         return data;
-
     } catch (error) {
         console.error('Error fetching data:', error);
         return getSampleData();
