@@ -34,28 +34,30 @@ window.addEventListener('scroll', () => {
 });
 
 // Fetch data from the API
-async function initDashboard() {
+async function fetchData() {
     try {
-        const data = await fetchData();
+        const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-table-pps.php?a=0&b=0&seasonmain_id=208&seasonnegeri_id=';
+        const proxyUrl = 'https://api.allorigins.win/get?url='; // Use a different CORS proxy service
 
-        // Update the dashboard UI
-        const ppsBukaElement = document.getElementById("ppsbuka");
-        if (ppsBukaElement) {
-            ppsBukaElement.textContent = data; // Display the fetched data (0 if no ppsbuka)
+        const response = await fetch(proxyUrl + encodeURIComponent(apiUrl), {
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        console.log("Dashboard updated with ppsbuka data:", data);
+        const result = await response.json();
+        const data = JSON.parse(result.contents).ppsbuka || []; // Extract the "ppsbuka" array
+        console.log('Fetched data:', data);
 
-        // Additional logic (e.g., map, charts)
-        loadMap();
+        return data;
+
     } catch (error) {
-        console.error("Error initializing dashboard:", error);
-
-        // Handle error in the UI gracefully
-        const ppsBukaElement = document.getElementById("ppsbuka");
-        if (ppsBukaElement) {
-            ppsBukaElement.textContent = "0"; // Ensure 0 is displayed even in error cases
-        }
+        console.error('Error fetching data:', error);
+        return getSampleData();
     }
 }
 
@@ -266,35 +268,6 @@ function updateTimestamp() {
     document.getElementById('last-updated').textContent = `Last updated: ${now.toLocaleDateString('en-MY', options)}`;
 }
 
-// Load and display the map of Malaysia
-async function loadMap() {
-    const mapContainer = document.getElementById('map');
-    if (!mapContainer) return;
-
-    const map = L.map('map').setView([4.2105, 101.9758], 6); // Center of Malaysia
-
-    // Add OpenStreetMap tile layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    // Load GeoJSON data for districts
-    const semenanjungGeoJson = await fetch('https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson').then(res => res.json());
-    const borneoGeoJson = await fetch('https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson').then(res => res.json());
-
-    // Add GeoJSON layers to the map
-    L.geoJSON(semenanjungGeoJson).addTo(map);
-    L.geoJSON(borneoGeoJson).addTo(map);
-
-    // Fetch and add evacuation center data
-    const evacuationData = await fetch('https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0').then(res => res.json());
-
-    evacuationData.forEach(center => {
-        const marker = L.marker([center.latitude, center.longitude]).addTo(map);
-        marker.bindPopup(`<b>${center.nama}</b><br>${center.daerah}, ${center.negeri}<br>Evacuees: ${center.jumlah_mangsa}`);
-    });
-}
-
 // Initialize dashboard
 async function initDashboard() {
     // Show loading state
@@ -320,7 +293,6 @@ async function initDashboard() {
         createPPSChart(data);
         populateTable(data);
         updateTimestamp();
-        await loadMap();
     } else {
         // Handle errors
         document.querySelectorAll('.stat-value').forEach(el => {
