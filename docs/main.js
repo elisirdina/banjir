@@ -50,8 +50,9 @@ async function fetchData() {
         }
 
         const result = await response.json();
-        const data = JSON.parse(result.contents).ppsbuka || []; // Extract the "ppsbuka" array
-        console.log('Fetched data:', data);
+        console.log('Raw API Response:', result); // Debugging
+        const data = JSON.parse(result.contents || '{}').ppsbuka || []; // Safer parsing
+        console.log('Parsed Data:', data); // Debugging
 
         return data;
 
