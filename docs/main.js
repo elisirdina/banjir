@@ -271,10 +271,10 @@ function updateTimestamp() {
 // Load GeoJSON map files
 async function loadGeoJSON() {
     try {
-        const proxyUrl = 'https://api.allorigins.win/get?url=';
         const semenanjungUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
         const borneoUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
-        
+
+        const proxyUrl = 'http://localhost:3000/geojson?url=';
         const semenanjungResponse = await fetch(proxyUrl + encodeURIComponent(semenanjungUrl));
         const borneoResponse = await fetch(proxyUrl + encodeURIComponent(borneoUrl));
 
