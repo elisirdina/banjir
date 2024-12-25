@@ -36,7 +36,7 @@ window.addEventListener('scroll', () => {
 // Fetch data from the API
 async function fetchData() {
     try {
-        const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-table-pps.php?a=0&b=0&seasonmain_id=209&seasonnegeri_id=';
+        const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-table-pps.php?a=0&b=0&seasonmain_id=208&seasonnegeri_id=';
         const proxyUrl = 'https://api.allorigins.win/get?url='; // Use a different CORS proxy service
 
         const response = await fetch(proxyUrl + encodeURIComponent(apiUrl), {
@@ -268,51 +268,6 @@ function updateTimestamp() {
     document.getElementById('last-updated').textContent = `Last updated: ${now.toLocaleDateString('en-MY', options)}`;
 }
 
-async function loadMap() {
-    try {
-        const proxyUrl = 'https://cors.bridged.cc/';
-        const semenanjungGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
-        const borneoGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
-        const ppsDataUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
-
-        const [semenanjungResponse, borneoResponse, ppsResponse] = await Promise.all([
-            fetch(proxyUrl + semenanjungGeoJsonUrl),
-            fetch(proxyUrl + borneoGeoJsonUrl),
-            fetch(proxyUrl + ppsDataUrl)
-        ]);
-
-        if (!semenanjungResponse.ok || !borneoResponse.ok || !ppsResponse.ok) {
-            throw new Error('Failed to load data');
-        }
-
-        const semenanjungGeoJson = await semenanjungResponse.json();
-        const borneoGeoJson = await borneoResponse.json();
-        const ppsData = await ppsResponse.json();
-
-        const map = L.map('map').setView([4.2105, 101.9758], 6);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-        L.geoJSON(semenanjungGeoJson).addTo(map);
-        L.geoJSON(borneoGeoJson).addTo(map);
-
-        ppsData.forEach(pps => {
-            L.marker([pps.latitude, pps.longitude])
-                .addTo(map)
-                .bindPopup(`<b>${pps.nama}</b><br>${pps.negeri}<br>${pps.daerah}`);
-        });
-
-    } catch (error) {
-        console.error('Error loading map data:', error);
-    }
-}
-
-// Initialize the map when the page loads
-document.addEventListener('DOMContentLoaded', loadMap);
-
-
 // Initialize dashboard
 async function initDashboard() {
     // Show loading state
@@ -348,8 +303,6 @@ async function initDashboard() {
         document.querySelector('#pps-table tbody').innerHTML = '<tr><td colspan="5">Error loading table data</td></tr>';
         document.getElementById('last-updated').textContent = 'Failed to update data';
     }
-
-    await loadMap();
 }
 
 // Handle window resize
@@ -357,4 +310,5 @@ window.addEventListener('resize', () => {
     initDashboard();
 });
 
-// Initialize when DOM is loadeddocument.addEventListener('DOMContentLoaded', initDashboard);
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', initDashboard);
