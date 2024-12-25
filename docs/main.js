@@ -271,20 +271,15 @@ function updateTimestamp() {
 // Load GeoJSON files and create a map
 async function loadMap() {
     try {
-        const proxyUrl = 'https://api.codetabs.com/v1/proxy?quest=';
         const semenanjungGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
         const borneoGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
         const ppsDataUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
 
         const [semenanjungResponse, borneoResponse, ppsResponse] = await Promise.all([
-            fetch(proxyUrl + encodeURIComponent(semenanjungGeoJsonUrl)),
-            fetch(proxyUrl + encodeURIComponent(borneoGeoJsonUrl)),
-            fetch(proxyUrl + encodeURIComponent(ppsDataUrl))
+            fetch(semenanjungGeoJsonUrl, { mode: 'no-cors' }),
+            fetch(borneoGeoJsonUrl, { mode: 'no-cors' }),
+            fetch(ppsDataUrl, { mode: 'no-cors' })
         ]);
-
-        if (!semenanjungResponse.ok || !borneoResponse.ok || !ppsResponse.ok) {
-            throw new Error('Failed to fetch one or more resources');
-        }
 
         const semenanjungGeoJson = await semenanjungResponse.json();
         const borneoGeoJson = await borneoResponse.json();
