@@ -276,9 +276,9 @@ async function loadMap() {
         const ppsDataUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
 
         const [semenanjungResponse, borneoResponse, ppsResponse] = await Promise.all([
-            fetch(semenanjungGeoJsonUrl, { mode: 'no-cors' }),
-            fetch(borneoGeoJsonUrl, { mode: 'no-cors' }),
-            fetch(ppsDataUrl, { mode: 'no-cors' })
+            fetch(semenanjungGeoJsonUrl),
+            fetch(borneoGeoJsonUrl),
+            fetch(ppsDataUrl)
         ]);
 
         const semenanjungGeoJson = await semenanjungResponse.json();
