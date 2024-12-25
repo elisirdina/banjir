@@ -271,7 +271,7 @@ function updateTimestamp() {
 // Load GeoJSON map files
 async function loadGeoJSON() {
     try {
-        const proxyUrl = 'https://cors-anywhere.herokuapp.com/'; // Use a different CORS proxy service
+        const proxyUrl = 'https://thingproxy.freeboard.io/fetch/'; // Use a different CORS proxy service
         const semenanjungUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
         const borneoUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
 
