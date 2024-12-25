@@ -36,7 +36,7 @@ window.addEventListener('scroll', () => {
 // Fetch data from the API
 async function fetchData() {
     try {
-        const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-table-pps.php?a=0&b=0&seasonmain_id=208&seasonnegeri_id=';
+        const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-table-pps.php?a=0&b=0&seasonmain_id=209&seasonnegeri_id=';
         const proxyUrl = 'https://api.allorigins.win/get?url='; // Use a different CORS proxy service
 
         const response = await fetch(proxyUrl + encodeURIComponent(apiUrl), {
