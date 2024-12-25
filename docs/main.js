@@ -274,9 +274,9 @@ async function loadGeoJSON() {
         const semenanjungUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
         const borneoUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
 
-        const proxyUrl = 'http://localhost:3000/geojson?url=';
-        const semenanjungResponse = await fetch(proxyUrl + encodeURIComponent(semenanjungUrl));
-        const borneoResponse = await fetch(proxyUrl + encodeURIComponent(borneoUrl));
+        const proxyUrl = 'https://my-cors-proxy.vercel.app/';
+        const semenanjungResponse = await fetch(proxyUrl + semenanjungUrl);
+        const borneoResponse = await fetch(proxyUrl + borneoUrl);
 
         if (!semenanjungResponse.ok || !borneoResponse.ok) {
             throw new Error('Failed to load GeoJSON files');
