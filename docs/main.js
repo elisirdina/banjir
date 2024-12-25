@@ -268,6 +268,27 @@ function updateTimestamp() {
     document.getElementById('last-updated').textContent = `Last updated: ${now.toLocaleDateString('en-MY', options)}`;
 }
 
+// Load GeoJSON map files
+async function loadGeoJSON() {
+    try {
+        const semenanjungResponse = await fetch('https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson');
+        const borneoResponse = await fetch('https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson');
+
+        if (!semenanjungResponse.ok || !borneoResponse.ok) {
+            throw new Error('Failed to load GeoJSON files');
+        }
+
+        const semenanjungGeoJSON = await semenanjungResponse.json();
+        const borneoGeoJSON = await borneoResponse.json();
+
+        console.log('Semenanjung GeoJSON:', semenanjungGeoJSON);
+        console.log('Borneo GeoJSON:', borneoGeoJSON);
+
+    } catch (error) {
+        console.error('Error loading GeoJSON files:', error);
+    }
+}
+
 // Initialize dashboard
 async function initDashboard() {
     // Show loading state
@@ -303,6 +324,8 @@ async function initDashboard() {
         document.querySelector('#pps-table tbody').innerHTML = '<tr><td colspan="5">Error loading table data</td></tr>';
         document.getElementById('last-updated').textContent = 'Failed to update data';
     }
+
+    await loadGeoJSON();
 }
 
 // Handle window resize
