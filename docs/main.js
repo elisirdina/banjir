@@ -268,6 +268,46 @@ function updateTimestamp() {
     document.getElementById('last-updated').textContent = `Last updated: ${now.toLocaleDateString('en-MY', options)}`;
 }
 
+// Load GeoJSON files and create a map
+async function loadMap() {
+    const semenanjungUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
+    const borneoUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
+    const ppsDataUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
+
+    try {
+        const [semenanjungResponse, borneoResponse, ppsResponse] = await Promise.all([
+            fetch(semenanjungUrl),
+            fetch(borneoUrl),
+            fetch(ppsDataUrl)
+        ]);
+
+        const semenanjungGeoJson = await semenanjungResponse.json();
+        const borneoGeoJson = await borneoResponse.json();
+        const ppsData = await ppsResponse.json();
+
+        // Initialize the map
+        const map = L.map('map').setView([4.2105, 101.9758], 6);
+
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Add GeoJSON layers
+        L.geoJSON(semenanjungGeoJson).addTo(map);
+        L.geoJSON(borneoGeoJson).addTo(map);
+
+        // Add PPS data to the map
+        ppsData.forEach(pps => {
+            const marker = L.marker([pps.lat, pps.lng]).addTo(map);
+            marker.bindPopup(`<b>${pps.nama}</b><br>State: ${pps.negeri}<br>District: ${pps.daerah}<br>Evacuees: ${pps.jumlah_mangsa}`);
+        });
+
+    } catch (error) {
+        console.error('Error loading map data:', error);
+    }
+}
+
 // Initialize dashboard
 async function initDashboard() {
     // Show loading state
@@ -293,6 +333,7 @@ async function initDashboard() {
         createPPSChart(data);
         populateTable(data);
         updateTimestamp();
+        loadMap(); // Load the map
     } else {
         // Handle errors
         document.querySelectorAll('.stat-value').forEach(el => {
