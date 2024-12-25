@@ -271,24 +271,24 @@ function updateTimestamp() {
 // Load GeoJSON files and create a map
 async function loadMap() {
     try {
-        const proxyUrl = 'https://api.allorigins.win/get?url=';
+        const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
         const semenanjungGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
         const borneoGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
         const ppsDataUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
 
         const [semenanjungResponse, borneoResponse, ppsResponse] = await Promise.all([
-            fetch(proxyUrl + encodeURIComponent(semenanjungGeoJsonUrl)),
-            fetch(proxyUrl + encodeURIComponent(borneoGeoJsonUrl)),
-            fetch(proxyUrl + encodeURIComponent(ppsDataUrl))
+            fetch(proxyUrl + semenanjungGeoJsonUrl),
+            fetch(proxyUrl + borneoGeoJsonUrl),
+            fetch(proxyUrl + ppsDataUrl)
         ]);
+
+        if (!semenanjungResponse.ok || !borneoResponse.ok || !ppsResponse.ok) {
+            throw new Error('Failed to fetch one or more resources');
+        }
 
         const semenanjungGeoJson = await semenanjungResponse.json();
         const borneoGeoJson = await borneoResponse.json();
         const ppsData = await ppsResponse.json();
-
-        const semenanjungGeoJsonData = JSON.parse(semenanjungGeoJson.contents);
-        const borneoGeoJsonData = JSON.parse(borneoGeoJson.contents);
-        const ppsDataParsed = JSON.parse(ppsData.contents);
 
         const map = L.map('map').setView([4.2105, 101.9758], 6);
 
@@ -296,10 +296,10 @@ async function loadMap() {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        L.geoJSON(semenanjungGeoJsonData).addTo(map);
-        L.geoJSON(borneoGeoJsonData).addTo(map);
+        L.geoJSON(semenanjungGeoJson).addTo(map);
+        L.geoJSON(borneoGeoJson).addTo(map);
 
-        ppsDataParsed.forEach(pps => {
+        ppsData.forEach(pps => {
             L.marker([pps.latitude, pps.longitude])
                 .addTo(map)
                 .bindPopup(`<b>${pps.nama}</b><br>${pps.negeri}<br>${pps.daerah}`);
