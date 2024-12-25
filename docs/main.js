@@ -271,15 +271,15 @@ function updateTimestamp() {
 // Load GeoJSON files and create a map
 async function loadMap() {
     try {
-        const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+        const proxyUrl = 'https://api.codetabs.com/v1/proxy?quest=';
         const semenanjungGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
         const borneoGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
         const ppsDataUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
 
         const [semenanjungResponse, borneoResponse, ppsResponse] = await Promise.all([
-            fetch(proxyUrl + semenanjungGeoJsonUrl),
-            fetch(proxyUrl + borneoGeoJsonUrl),
-            fetch(proxyUrl + ppsDataUrl)
+            fetch(proxyUrl + encodeURIComponent(semenanjungGeoJsonUrl)),
+            fetch(proxyUrl + encodeURIComponent(borneoGeoJsonUrl)),
+            fetch(proxyUrl + encodeURIComponent(ppsDataUrl))
         ]);
 
         if (!semenanjungResponse.ok || !borneoResponse.ok || !ppsResponse.ok) {
