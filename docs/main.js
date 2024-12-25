@@ -271,15 +271,22 @@ function updateTimestamp() {
 // Load GeoJSON map files
 async function loadGeoJSON() {
     try {
-        const semenanjungResponse = await fetch('https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson');
-        const borneoResponse = await fetch('https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson');
+        const proxyUrl = 'https://api.allorigins.win/get?url='; // Use a CORS proxy service
+        const semenanjungUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
+        const borneoUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
+
+        const semenanjungResponse = await fetch(proxyUrl + encodeURIComponent(semenanjungUrl));
+        const borneoResponse = await fetch(proxyUrl + encodeURIComponent(borneoUrl));
 
         if (!semenanjungResponse.ok || !borneoResponse.ok) {
             throw new Error('Failed to load GeoJSON files');
         }
 
-        const semenanjungGeoJSON = await semenanjungResponse.json();
-        const borneoGeoJSON = await borneoResponse.json();
+        const semenanjungResult = await semenanjungResponse.json();
+        const borneoResult = await borneoResponse.json();
+
+        const semenanjungGeoJSON = JSON.parse(semenanjungResult.contents);
+        const borneoGeoJSON = JSON.parse(borneoResult.contents);
 
         console.log('Semenanjung GeoJSON:', semenanjungGeoJSON);
         console.log('Borneo GeoJSON:', borneoGeoJSON);
