@@ -270,14 +270,14 @@ function updateTimestamp() {
 
 async function loadMap() {
     try {
-        const proxyUrl = 'https://api.allorigins.win/get?url=';
+        const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
         const semenanjungGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
         const borneoGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
         const ppsDataUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
 
         const [semenanjungResponse, borneoResponse, ppsResponse] = await Promise.all([
-            fetch(proxyUrl + encodeURIComponent(semenanjungGeoJsonUrl)),
-            fetch(proxyUrl + encodeURIComponent(borneoGeoJsonUrl)),
+            fetch(proxyUrl + semenanjungGeoJsonUrl),
+            fetch(proxyUrl + borneoGeoJsonUrl),
             fetch(ppsDataUrl)
         ]);
 
@@ -289,17 +289,14 @@ async function loadMap() {
         const borneoGeoJson = await borneoResponse.json();
         const ppsData = await ppsResponse.json();
 
-        const semenanjungGeoJsonData = JSON.parse(semenanjungGeoJson.contents);
-        const borneoGeoJsonData = JSON.parse(borneoGeoJson.contents);
-
         const map = L.map('map').setView([4.2105, 101.9758], 6);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        L.geoJSON(semenanjungGeoJsonData).addTo(map);
-        L.geoJSON(borneoGeoJsonData).addTo(map);
+        L.geoJSON(semenanjungGeoJson).addTo(map);
+        L.geoJSON(borneoGeoJson).addTo(map);
 
         ppsData.forEach(pps => {
             L.marker([pps.latitude, pps.longitude])
@@ -360,5 +357,4 @@ window.addEventListener('resize', () => {
     initDashboard();
 });
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', initDashboard);
+// Initialize when DOM is loadeddocument.addEventListener('DOMContentLoaded', initDashboard);
