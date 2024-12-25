@@ -270,59 +270,45 @@ function updateTimestamp() {
 
 async function loadMap() {
     try {
-        // Fetching GeoJSON map data for Peninsular Malaysia and Borneo
-        const geoJsonSemenanjungUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
-        const geoJsonBorneoUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
-        
-        // Fetching both GeoJSON files
-        const responseSemenanjung = await fetch(geoJsonSemenanjungUrl);
-        const responseBorneo = await fetch(geoJsonBorneoUrl);
-        
-        // Check if both responses are OK
-        if (!responseSemenanjung.ok || !responseBorneo.ok) {
-            throw new Error('Failed to load GeoJSON data');
-        }
-        
-        // Parsing the GeoJSON data
-        const geoJsonSemenanjung = await responseSemenanjung.json();
-        const geoJsonBorneo = await responseBorneo.json();
+        const proxyUrl = 'https://api.allorigins.win/get?url=';
+        const semenanjungGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
+        const borneoGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
+        const ppsDataUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
 
-        // Fetching additional data from API
-        const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
-        const apiResponse = await fetch(apiUrl);
-        
-        if (!apiResponse.ok) {
-            throw new Error('Failed to load API data');
+        const [semenanjungResponse, borneoResponse, ppsResponse] = await Promise.all([
+            fetch(proxyUrl + encodeURIComponent(semenanjungGeoJsonUrl)),
+            fetch(proxyUrl + encodeURIComponent(borneoGeoJsonUrl)),
+            fetch(ppsDataUrl)
+        ]);
+
+        if (!semenanjungResponse.ok || !borneoResponse.ok || !ppsResponse.ok) {
+            throw new Error('Failed to load data');
         }
 
-        const apiData = await apiResponse.json();
+        const semenanjungGeoJson = await semenanjungResponse.json();
+        const borneoGeoJson = await borneoResponse.json();
+        const ppsData = await ppsResponse.json();
 
-        // Initialize the map using Leaflet or your chosen map library
-        const map = L.map('map').setView([4.2105, 101.9758], 5); // Centering map at Malaysia
+        const semenanjungGeoJsonData = JSON.parse(semenanjungGeoJson.contents);
+        const borneoGeoJsonData = JSON.parse(borneoGeoJson.contents);
 
-        // Adding a tile layer to the map (OpenStreetMap in this example)
+        const map = L.map('map').setView([4.2105, 101.9758], 6);
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        // Adding GeoJSON data to the map
-        L.geoJSON(geoJsonSemenanjung).addTo(map);
-        L.geoJSON(geoJsonBorneo).addTo(map);
+        L.geoJSON(semenanjungGeoJsonData).addTo(map);
+        L.geoJSON(borneoGeoJsonData).addTo(map);
 
-        // Process the API data and add it to the map
-        apiData.forEach((item) => {
-            // Assuming the API provides latitude and longitude for each data point
-            if (item.latitude && item.longitude) {
-                L.marker([item.latitude, item.longitude])
-                    .addTo(map)
-                    .bindPopup(`<strong>${item.name}</strong><br>More info: ${item.details}`);
-            }
+        ppsData.forEach(pps => {
+            L.marker([pps.latitude, pps.longitude])
+                .addTo(map)
+                .bindPopup(`<b>${pps.nama}</b><br>${pps.negeri}<br>${pps.daerah}`);
         });
 
     } catch (error) {
         console.error('Error loading map data:', error);
-        // You can display a message to the user if map loading fails
-        document.querySelector('#map').innerHTML = 'Failed to load map data. Please try again later.';
     }
 }
 
