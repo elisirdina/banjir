@@ -276,18 +276,19 @@ function initMap() {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // Fetch GeoJSON data for Malaysia
+    // Load GeoJSON data using a CORS proxy
+    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
     const semenanjungGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
     const borneoGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
 
-    fetch(semenanjungGeoJsonUrl)
+    fetch(proxyUrl + semenanjungGeoJsonUrl)
         .then(response => response.json())
         .then(data => {
             L.geoJSON(data).addTo(map);
         })
         .catch(error => console.error('Error fetching semenanjung GeoJSON:', error));
 
-    fetch(borneoGeoJsonUrl)
+    fetch(proxyUrl + borneoGeoJsonUrl)
         .then(response => response.json())
         .then(data => {
             L.geoJSON(data).addTo(map);
@@ -296,7 +297,7 @@ function initMap() {
 
     // Fetch and display data from the API
     const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
-    fetch(apiUrl)
+    fetch(proxyUrl + apiUrl)
         .then(response => response.json())
         .then(data => {
             data.forEach(center => {
