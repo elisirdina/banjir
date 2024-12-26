@@ -277,29 +277,32 @@ function initMap() {
     }).addTo(map);
 
     // Load GeoJSON data using a CORS proxy
-    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+    const proxyUrl = 'https://api.allorigins.win/get?url=';
     const semenanjungGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
     const borneoGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
 
-    fetch(proxyUrl + semenanjungGeoJsonUrl)
+    fetch(proxyUrl + encodeURIComponent(semenanjungGeoJsonUrl))
         .then(response => response.json())
-        .then(data => {
+        .then(result => {
+            const data = JSON.parse(result.contents);
             L.geoJSON(data).addTo(map);
         })
         .catch(error => console.error('Error fetching semenanjung GeoJSON:', error));
 
-    fetch(proxyUrl + borneoGeoJsonUrl)
+    fetch(proxyUrl + encodeURIComponent(borneoGeoJsonUrl))
         .then(response => response.json())
-        .then(data => {
+        .then(result => {
+            const data = JSON.parse(result.contents);
             L.geoJSON(data).addTo(map);
         })
         .catch(error => console.error('Error fetching borneo GeoJSON:', error));
 
     // Fetch and display data from the API
     const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
-    fetch(proxyUrl + apiUrl)
+    fetch(proxyUrl + encodeURIComponent(apiUrl))
         .then(response => response.json())
-        .then(data => {
+        .then(result => {
+            const data = JSON.parse(result.contents);
             data.forEach(center => {
                 const marker = L.marker([center.latitude, center.longitude]).addTo(map);
                 marker.bindPopup(`<b>${center.nama}</b><br>${center.daerah}, ${center.negeri}<br>Victims: ${center.jumlah_mangsa}`);
