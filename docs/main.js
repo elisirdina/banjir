@@ -276,29 +276,25 @@ function initMap() {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    const proxyUrl = 'https://api.allorigins.win/get?url=';
+    // Load GeoJSON data using a CORS proxy
+    const proxyUrl = 'https://corsproxy.io/?';
     const semenanjungGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
     const borneoGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
 
-    // Fetch Peninsular Malaysia GeoJSON
     fetch(proxyUrl + encodeURIComponent(semenanjungGeoJsonUrl))
         .then(response => response.json())
         .then(data => {
-            const geojsonData = JSON.parse(data.contents);
-            L.geoJSON(geojsonData).addTo(map);
+            L.geoJSON(data).addTo(map);
         })
         .catch(error => console.error('Error fetching semenanjung GeoJSON:', error));
 
-    // Fetch Borneo GeoJSON
     fetch(proxyUrl + encodeURIComponent(borneoGeoJsonUrl))
         .then(response => response.json())
         .then(data => {
-            const geojsonData = JSON.parse(data.contents);
-            L.geoJSON(geojsonData).addTo(map);
+            L.geoJSON(data).addTo(map);
         })
         .catch(error => console.error('Error fetching borneo GeoJSON:', error));
 }
-
 
 // Initialize dashboard
 async function initDashboard() {
