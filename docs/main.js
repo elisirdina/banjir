@@ -268,6 +268,31 @@ function updateTimestamp() {
     document.getElementById('last-updated').textContent = `Last updated: ${now.toLocaleDateString('en-MY', options)}`;
 }
 
+// Initialize the map
+function initMap() {
+    const map = L.map('map').setView([4.2105, 101.9758], 6); // Centered on Malaysia
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Load GeoJSON data
+    const semenanjungGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
+    const borneoGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
+
+    fetch(semenanjungGeoJsonUrl)
+        .then(response => response.json())
+        .then(data => {
+            L.geoJSON(data).addTo(map);
+        });
+
+    fetch(borneoGeoJsonUrl)
+        .then(response => response.json())
+        .then(data => {
+            L.geoJSON(data).addTo(map);
+        });
+}
+
 // Initialize dashboard
 async function initDashboard() {
     // Show loading state
@@ -311,4 +336,7 @@ window.addEventListener('resize', () => {
 });
 
 // Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', initDashboard);
+document.addEventListener('DOMContentLoaded', () => {
+    initDashboard();
+    initMap();
+});
