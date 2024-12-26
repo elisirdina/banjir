@@ -277,7 +277,7 @@ function initMap() {
     }).addTo(map);
 
     // Load GeoJSON data using a CORS proxy
-    const proxyUrl = 'https://thingproxy.freeboard.io/fetch/';
+    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
     const semenanjungGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
     const borneoGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
 
