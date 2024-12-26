@@ -277,18 +277,18 @@ function initMap() {
     }).addTo(map);
 
     // Load GeoJSON data using a CORS proxy
-    const proxyUrl = 'https://corsproxy.io/?';
+    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
     const semenanjungGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
     const borneoGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
 
-    fetch(proxyUrl + encodeURIComponent(semenanjungGeoJsonUrl))
+    fetch(proxyUrl + semenanjungGeoJsonUrl)
         .then(response => response.json())
         .then(data => {
             L.geoJSON(data).addTo(map);
         })
         .catch(error => console.error('Error fetching semenanjung GeoJSON:', error));
 
-    fetch(proxyUrl + encodeURIComponent(borneoGeoJsonUrl))
+    fetch(proxyUrl + borneoGeoJsonUrl)
         .then(response => response.json())
         .then(data => {
             L.geoJSON(data).addTo(map);
