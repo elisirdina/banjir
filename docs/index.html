@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Banjir Dashboard</title>
     <link rel="stylesheet" href="/banjir/style.css?v=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
     <script src="https://d3js.org/d3.v7.min.js?v=1.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3-scale@4?v=1.0"></script>
 </head>
@@ -32,6 +33,10 @@
                     <h3>Total Families</h3>
                     <p class="stat-value">Loading...</p>
                 </div>
+            </div>
+
+            <div>
+                <id="map" class="map">
             </div>
 
             <div class="chart-container">
@@ -83,6 +88,6 @@
         </div>
     </footer>
 
-    <script src="/banjir/main.js?v=1.0"></script>
+    <script src="/banjir/main.js"></script>
 </body>
 </html>
