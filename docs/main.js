@@ -276,24 +276,35 @@ function initMap() {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // Load GeoJSON data using a CORS proxy
-    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+    // Fetch GeoJSON data for Malaysia
     const semenanjungGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
     const borneoGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
 
-    fetch(proxyUrl + semenanjungGeoJsonUrl)
+    fetch(semenanjungGeoJsonUrl)
         .then(response => response.json())
         .then(data => {
             L.geoJSON(data).addTo(map);
         })
         .catch(error => console.error('Error fetching semenanjung GeoJSON:', error));
 
-    fetch(proxyUrl + borneoGeoJsonUrl)
+    fetch(borneoGeoJsonUrl)
         .then(response => response.json())
         .then(data => {
             L.geoJSON(data).addTo(map);
         })
         .catch(error => console.error('Error fetching borneo GeoJSON:', error));
+
+    // Fetch and display data from the API
+    const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
+    fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+            data.forEach(center => {
+                const marker = L.marker([center.latitude, center.longitude]).addTo(map);
+                marker.bindPopup(`<b>${center.nama}</b><br>${center.daerah}, ${center.negeri}<br>Victims: ${center.jumlah_mangsa}`);
+            });
+        })
+        .catch(error => console.error('Error fetching center data:', error));
 }
 
 // Initialize dashboard
