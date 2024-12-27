@@ -277,18 +277,18 @@ function initMap() {
     }).addTo(map);
 
     // Load GeoJSON data using a CORS proxy
-    const proxyUrl = 'https://corsproxy.io/?';
+    const proxyUrl = 'https://thingproxy.freeboard.io/fetch/';
     const semenanjungGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
     const borneoGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
 
-    fetch(proxyUrl + encodeURIComponent(semenanjungGeoJsonUrl))
+    fetch(proxyUrl + semenanjungGeoJsonUrl)
         .then(response => response.json())
         .then(data => {
             L.geoJSON(data).addTo(map);
         })
         .catch(error => console.error('Error fetching semenanjung GeoJSON:', error));
 
-    fetch(proxyUrl + encodeURIComponent(borneoGeoJsonUrl))
+    fetch(proxyUrl + borneoGeoJsonUrl)
         .then(response => response.json())
         .then(data => {
             L.geoJSON(data).addTo(map);
@@ -297,7 +297,7 @@ function initMap() {
 
     // Fetch and display data from the API
     const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
-    fetch(proxyUrl + encodeURIComponent(apiUrl))
+    fetch(proxyUrl + apiUrl)
         .then(response => response.json())
         .then(data => {
             if (!Array.isArray(data)) {
