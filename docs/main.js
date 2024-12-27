@@ -277,22 +277,20 @@ function initMap() {
     }).addTo(map);
 
     // Load GeoJSON data using a CORS proxy
-    const proxyUrl = 'https://api.allorigins.win/get?url=';
+    const proxyUrl = 'https://corsproxy.io/?';
     const semenanjungGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
     const borneoGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
 
     fetch(proxyUrl + encodeURIComponent(semenanjungGeoJsonUrl))
         .then(response => response.json())
-        .then(result => {
-            const data = JSON.parse(result.contents);
+        .then(data => {
             L.geoJSON(data).addTo(map);
         })
         .catch(error => console.error('Error fetching semenanjung GeoJSON:', error));
 
     fetch(proxyUrl + encodeURIComponent(borneoGeoJsonUrl))
         .then(response => response.json())
-        .then(result => {
-            const data = JSON.parse(result.contents);
+        .then(data => {
             L.geoJSON(data).addTo(map);
         })
         .catch(error => console.error('Error fetching borneo GeoJSON:', error));
@@ -301,8 +299,7 @@ function initMap() {
     const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
     fetch(proxyUrl + encodeURIComponent(apiUrl))
         .then(response => response.json())
-        .then(result => {
-            const data = JSON.parse(result.contents);
+        .then(data => {
             if (!Array.isArray(data)) {
                 throw new Error('Invalid data format');
             }
