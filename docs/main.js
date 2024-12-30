@@ -37,9 +37,9 @@ window.addEventListener('scroll', () => {
 async function fetchData() {
     try {
         const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-table-pps.php?a=0&b=0&seasonmain_id=209&seasonnegeri_id=';
-        const proxyUrl = 'https://api.allorigins.win/get?url='; // Use a different CORS proxy service
+        const proxyUrl = 'https://thingproxy.freeboard.io/fetch/';
 
-        const response = await fetch(proxyUrl + encodeURIComponent(apiUrl), {
+        const response = await fetch(proxyUrl + apiUrl, {
             headers: {
                 'Accept': 'application/json'
             }
@@ -49,9 +49,12 @@ async function fetchData() {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const result = await response.json();
-        const data = JSON.parse(result.contents).ppsbuka || []; // Extract the "ppsbuka" array
+        const data = await response.json();
         console.log('Fetched data:', data);
+
+        if (!Array.isArray(data)) {
+            throw new Error('Invalid data format');
+        }
 
         return data;
 
@@ -277,18 +280,18 @@ function initMap() {
     }).addTo(map);
 
     // Load GeoJSON data using a CORS proxy
-    const proxyUrl = 'https://corsproxy.io/?';
+    const proxyUrl = 'https://thingproxy.freeboard.io/fetch/';
     const semenanjungGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
     const borneoGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
 
-    fetch(proxyUrl + encodeURIComponent(semenanjungGeoJsonUrl))
+    fetch(proxyUrl + semenanjungGeoJsonUrl)
         .then(response => response.json())
         .then(data => {
             L.geoJSON(data).addTo(map);
         })
         .catch(error => console.error('Error fetching semenanjung GeoJSON:', error));
 
-    fetch(proxyUrl + encodeURIComponent(borneoGeoJsonUrl))
+    fetch(proxyUrl + borneoGeoJsonUrl)
         .then(response => response.json())
         .then(data => {
             L.geoJSON(data).addTo(map);
@@ -297,7 +300,7 @@ function initMap() {
 
     // Fetch and display data from the API
     const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
-    fetch(proxyUrl + encodeURIComponent(apiUrl))
+    fetch(proxyUrl + apiUrl)
         .then(response => response.json())
         .then(data => {
             if (!Array.isArray(data)) {
@@ -314,8 +317,8 @@ function initMap() {
 // Fetch trend data from the API
 async function fetchTrendData(apiUrl) {
     try {
-        const proxyUrl = 'https://corsproxy.io/?';
-        const response = await fetch(proxyUrl + encodeURIComponent(apiUrl), {
+        const proxyUrl = 'https://thingproxy.freeboard.io/fetch/';
+        const response = await fetch(proxyUrl + apiUrl, {
             headers: {
                 'Accept': 'application/json'
             }
@@ -325,9 +328,12 @@ async function fetchTrendData(apiUrl) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const result = await response.json();
-        const data = JSON.parse(result.contents);
+        const data = await response.json();
         console.log('Fetched trend data:', data);
+
+        if (!Array.isArray(data)) {
+            throw new Error('Invalid data format');
+        }
 
         return data;
 
