@@ -358,7 +358,7 @@ function createLineChart(data, selector, title) {
     const formattedData = data.tarikh.map((date, index) => ({
         date: parseTime(date),
         value: +data.mangsa?.[index] || +data.masuk?.[index] || +data.balik?.[index]
-    }));
+    })).filter(d => !isNaN(d.value));
 
     // Set the ranges
     const x = d3.scaleTime().range([0, width]);
