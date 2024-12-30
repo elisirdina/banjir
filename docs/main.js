@@ -312,10 +312,10 @@ function initMap() {
 }
 
 // Fetch trend data from the API
-async function fetchTrendData(url) {
+async function fetchTrendData(apiUrl) {
     try {
         const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-        const response = await fetch(proxyUrl + url, {
+        const response = await fetch(proxyUrl + apiUrl, {
             headers: {
                 'Accept': 'application/json'
             }
@@ -325,8 +325,10 @@ async function fetchTrendData(url) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const result = await response.json();
-        return result;
+        const data = await response.json();
+        console.log('Fetched trend data:', data);
+
+        return data;
 
     } catch (error) {
         console.error('Error fetching trend data:', error);
@@ -335,8 +337,8 @@ async function fetchTrendData(url) {
 }
 
 // Create line chart for trend data
-function createLineChart(data, selector, title) {
-    const margin = { top: 20, right: 20, bottom: 60, left: 60 };
+function createTrendChart(data, selector, title) {
+    const margin = {top: 20, right: 20, bottom: 60, left: 60};
     const width = document.querySelector(selector).clientWidth - margin.left - margin.right;
     const height = document.querySelector(selector).clientHeight - margin.top - margin.bottom;
 
@@ -352,7 +354,7 @@ function createLineChart(data, selector, title) {
         .attr('transform', `translate(${margin.left},${margin.top})`);
 
     // Parse the date / time
-    const parseTime = d3.timeParse('%Y-%m-%d');
+    const parseTime = d3.timeParse("%Y-%m-%d");
 
     // Format the data
     data.forEach(d => {
@@ -373,32 +375,40 @@ function createLineChart(data, selector, title) {
     x.domain(d3.extent(data, d => d.date));
     y.domain([0, d3.max(data, d => d.value)]);
 
-    // Add the valueline path
-    svg.append('path')
+    // Add the valueline path.
+    svg.append("path")
         .data([data])
-        .attr('class', 'line')
-        .attr('d', valueline)
-        .attr('stroke', '#3498db')
-        .attr('stroke-width', 2)
-        .attr('fill', 'none');
+        .attr("class", "line")
+        .attr("d", valueline);
 
     // Add the X Axis
-    svg.append('g')
-        .attr('transform', `translate(0,${height})`)
+    svg.append("g")
+        .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(x));
 
     // Add the Y Axis
-    svg.append('g')
+    svg.append("g")
         .call(d3.axisLeft(y));
 
     // Add title
-    svg.append('text')
-        .attr('x', width / 2)
-        .attr('y', 0 - margin.top / 2)
-        .attr('text-anchor', 'middle')
-        .style('font-size', '16px')
-        .style('text-decoration', 'underline')
+    svg.append("text")
+        .attr("x", (width / 2))             
+        .attr("y", 0 - (margin.top / 2))
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px") 
+        .style("text-decoration", "underline")  
         .text(title);
+}
+
+// Initialize trend charts
+async function initTrendCharts() {
+    const trendData = await fetchTrendData('https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-aliran-trend.php?a=0&b=0&seasonmain_id=209&seasonnegeri_id=');
+    const trendMasukData = await fetchTrendData('https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-aliran-trend-masuk.php?a=0&b=0&seasonmain_id=209&seasonnegeri_id=');
+    const trendBalikData = await fetchTrendData('https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-aliran-trend-balik.php?a=0&b=0&seasonmain_id=209&seasonnegeri_id=');
+
+    createTrendChart(trendData, '#trend-chart', 'Trend of Victims Throughout the Date');
+    createTrendChart(trendMasukData, '#trend-masuk-chart', 'Trend of Victims Going into the PPS');
+    createTrendChart(trendBalikData, '#trend-balik-chart', 'Trend of Victims Going Out of the PPS');
 }
 
 // Initialize dashboard
@@ -426,16 +436,6 @@ async function initDashboard() {
         createPPSChart(data);
         populateTable(data);
         updateTimestamp();
-
-        // Fetch and create trend charts
-        const trendData = await fetchTrendData('https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-aliran-trend.php?a=0&b=0&seasonmain_id=209&seasonnegeri_id=');
-        createLineChart(trendData, '#trend-chart', 'Trend of Victims Throughout the Date');
-
-        const trendInData = await fetchTrendData('https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-aliran-trend-masuk.php?a=0&b=0&seasonmain_id=209&seasonnegeri_id=');
-        createLineChart(trendInData, '#trend-in-chart', 'Trend of Victims Going into the PPS');
-
-        const trendOutData = await fetchTrendData('https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-aliran-trend-balik.php?a=0&b=0&seasonmain_id=209&seasonnegeri_id=');
-        createLineChart(trendOutData, '#trend-out-chart', 'Trend of Victims Going out of the PPS');
     } else {
         // Handle errors
         document.querySelectorAll('.stat-value').forEach(el => {
@@ -457,4 +457,5 @@ window.addEventListener('resize', () => {
 document.addEventListener('DOMContentLoaded', () => {
     initDashboard();
     initMap();
+    initTrendCharts();
 });
