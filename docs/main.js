@@ -37,9 +37,9 @@ window.addEventListener('scroll', () => {
 async function fetchData() {
     try {
         const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-table-pps.php?a=0&b=0&seasonmain_id=209&seasonnegeri_id=';
-        const proxyUrl = 'https://thingproxy.freeboard.io/fetch/';
+        const proxyUrl = 'https://api.allorigins.win/get?url='; // Use a different CORS proxy service
 
-        const response = await fetch(proxyUrl + apiUrl, {
+        const response = await fetch(proxyUrl + encodeURIComponent(apiUrl), {
             headers: {
                 'Accept': 'application/json'
             }
@@ -49,12 +49,9 @@ async function fetchData() {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const data = await response.json();
+        const result = await response.json();
+        const data = JSON.parse(result.contents).ppsbuka || []; // Extract the "ppsbuka" array
         console.log('Fetched data:', data);
-
-        if (!Array.isArray(data)) {
-            throw new Error('Invalid data format');
-        }
 
         return data;
 
@@ -330,10 +327,6 @@ async function fetchTrendData(apiUrl) {
 
         const data = await response.json();
         console.log('Fetched trend data:', data);
-
-        if (!Array.isArray(data)) {
-            throw new Error('Invalid data format');
-        }
 
         return data;
 
