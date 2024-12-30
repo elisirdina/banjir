@@ -82,9 +82,11 @@ header h1 {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.chart h3 {
+.chart h3,
+.table-container h3 {
     margin-bottom: 1rem;
     color: #2c3e50;
+    font-size: 1.25rem; /* Ensure consistent font size */
 }
 
 .chart-area {
@@ -110,11 +112,6 @@ header h1 {
     -webkit-overflow-scrolling: touch;
     margin: 0 -1.5rem;
     padding: 0 1.5rem;
-}
-
-.table-container h3 {
-    margin-bottom: 1rem;
-    color: #2c3e50;
 }
 
 table {
