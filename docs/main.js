@@ -268,34 +268,42 @@ function updateTimestamp() {
     document.getElementById('last-updated').textContent = `Last updated: ${now.toLocaleDateString('en-MY', options)}`;
 }
 
+// Fetch GeoJSON data using a CORS proxy
+async function fetchGeoJsonData(url) {
+    const proxyUrl = 'https://api.allorigins.win/get?url=';
+    try {
+        const response = await fetch(proxyUrl + encodeURIComponent(url));
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const result = await response.json();
+        return JSON.parse(result.contents);
+    } catch (error) {
+        console.error(`Error fetching GeoJSON data from ${url}:`, error);
+        return null;
+    }
+}
+
 // Initialize the map
-function initMap() {
+async function initMap() {
     const map = L.map('map').setView([4.2105, 101.9758], 6); // Centered on Malaysia
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // Load GeoJSON data using a CORS proxy
-    const proxyUrl = 'https://api.allorigins.win/get?url=';
     const semenanjungGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
     const borneoGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
 
-    fetch(proxyUrl + encodeURIComponent(semenanjungGeoJsonUrl))
-        .then(response => response.json())
-        .then(result => {
-            const data = JSON.parse(result.contents);
-            L.geoJSON(data).addTo(map);
-        })
-        .catch(error => console.error('Error fetching semenanjung GeoJSON:', error));
+    const semenanjungData = await fetchGeoJsonData(semenanjungGeoJsonUrl);
+    if (semenanjungData) {
+        L.geoJSON(semenanjungData).addTo(map);
+    }
 
-    fetch(proxyUrl + encodeURIComponent(borneoGeoJsonUrl))
-        .then(response => response.json())
-        .then(result => {
-            const data = JSON.parse(result.contents);
-            L.geoJSON(data).addTo(map);
-        })
-        .catch(error => console.error('Error fetching borneo GeoJSON:', error));
+    const borneoData = await fetchGeoJsonData(borneoGeoJsonUrl);
+    if (borneoData) {
+        L.geoJSON(borneoData).addTo(map);
+    }
 
     // Fetch and display data from the API
     const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
