@@ -263,7 +263,7 @@ async function fetchGeoJsonData(url) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const result = await response.json();
-        return result;
+        return JSON.parse(result.contents);
     } catch (error) {
         console.error(`Error fetching GeoJSON data from ${url}:`, error);
         return null;
