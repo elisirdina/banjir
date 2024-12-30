@@ -277,29 +277,32 @@ function initMap() {
     }).addTo(map);
 
     // Load GeoJSON data using a CORS proxy
-    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+    const proxyUrl = 'https://api.allorigins.win/get?url=';
     const semenanjungGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
     const borneoGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
 
-    fetch(proxyUrl + semenanjungGeoJsonUrl)
+    fetch(proxyUrl + encodeURIComponent(semenanjungGeoJsonUrl))
         .then(response => response.json())
-        .then(data => {
+        .then(result => {
+            const data = JSON.parse(result.contents);
             L.geoJSON(data).addTo(map);
         })
         .catch(error => console.error('Error fetching semenanjung GeoJSON:', error));
 
-    fetch(proxyUrl + borneoGeoJsonUrl)
+    fetch(proxyUrl + encodeURIComponent(borneoGeoJsonUrl))
         .then(response => response.json())
-        .then(data => {
+        .then(result => {
+            const data = JSON.parse(result.contents);
             L.geoJSON(data).addTo(map);
         })
         .catch(error => console.error('Error fetching borneo GeoJSON:', error));
 
     // Fetch and display data from the API
     const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
-    fetch(proxyUrl + apiUrl)
+    fetch(proxyUrl + encodeURIComponent(apiUrl))
         .then(response => response.json())
-        .then(data => {
+        .then(result => {
+            const data = JSON.parse(result.contents);
             if (!Array.isArray(data)) {
                 throw new Error('Invalid data format');
             }
@@ -314,8 +317,8 @@ function initMap() {
 // Fetch trend data from the API
 async function fetchTrendData(apiUrl) {
     try {
-        const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-        const response = await fetch(proxyUrl + apiUrl, {
+        const proxyUrl = 'https://api.allorigins.win/get?url=';
+        const response = await fetch(proxyUrl + encodeURIComponent(apiUrl), {
             headers: {
                 'Accept': 'application/json'
             }
@@ -325,7 +328,8 @@ async function fetchTrendData(apiUrl) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const data = await response.json();
+        const result = await response.json();
+        const data = JSON.parse(result.contents);
         console.log('Fetched trend data:', data);
 
         return data;
