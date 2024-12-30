@@ -256,14 +256,14 @@ function updateTimestamp() {
 
 // Fetch GeoJSON data using a CORS proxy
 async function fetchGeoJsonData(url) {
-    const proxyUrl = 'https://api.allorigins.win/get?url=';
+    const proxyUrl = 'https://corsproxy.io/?';
     try {
         const response = await fetch(proxyUrl + encodeURIComponent(url));
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const result = await response.json();
-        return JSON.parse(result.contents);
+        return result;
     } catch (error) {
         console.error(`Error fetching GeoJSON data from ${url}:`, error);
         return null;
@@ -293,10 +293,10 @@ async function initMap() {
 
     // Fetch and display data from the API
     const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
+    const proxyUrl = 'https://corsproxy.io/?';
     fetch(proxyUrl + encodeURIComponent(apiUrl))
         .then(response => response.json())
-        .then(result => {
-            const data = JSON.parse(result.contents);
+        .then(data => {
             if (!Array.isArray(data)) {
                 throw new Error('Invalid data format');
             }
