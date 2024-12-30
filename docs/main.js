@@ -61,32 +61,6 @@ async function fetchData() {
     }
 }
 
-// Fetch trend data from the API
-async function fetchTrendData(apiUrl) {
-    try {
-        const proxyUrl = 'https://api.allorigins.win/get?url=';
-        const response = await fetch(proxyUrl + encodeURIComponent(apiUrl), {
-            headers: {
-                'Accept': 'application/json'
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const result = await response.json();
-        const data = JSON.parse(result.contents);
-        console.log('Fetched trend data:', data);
-
-        return data;
-
-    } catch (error) {
-        console.error('Error fetching trend data:', error);
-        return [];
-    }
-}
-
 // Sample data for demonstration when API is not accessible
 function getSampleData() {
     return [
@@ -238,70 +212,6 @@ function createPPSChart(data) {
         .style('fill', 'white');
 }
 
-// Create line chart for trend data
-function createLineChart(data, selector, title) {
-    const margin = {top: 20, right: 20, bottom: 60, left: 60};
-    const width = document.querySelector(selector).clientWidth - margin.left - margin.right;
-    const height = document.querySelector(selector).clientHeight - margin.top - margin.bottom;
-
-    // Clear previous chart
-    d3.select(selector).html('');
-
-    // Create SVG
-    const svg = d3.select(selector)
-        .append('svg')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom)
-        .append('g')
-        .attr('transform', `translate(${margin.left},${margin.top})`);
-
-    // Parse the date / time
-    const parseTime = d3.timeParse("%Y-%m-%d");
-
-    // Format the data
-    const formattedData = data.tarikh.map((date, index) => ({
-        date: parseTime(date),
-        value: +data.mangsa?.[index] || +data.masuk?.[index] || +data.balik?.[index]
-    }));
-
-    // Set the ranges
-    const x = d3.scaleTime().range([0, width]);
-    const y = d3.scaleLinear().range([height, 0]);
-
-    // Define the line
-    const valueline = d3.line()
-        .x(d => x(d.date))
-        .y(d => y(d.value));
-
-    // Scale the range of the data
-    x.domain(d3.extent(formattedData, d => d.date));
-    y.domain([0, d3.max(formattedData, d => d.value)]);
-
-    // Add the valueline path.
-    svg.append("path")
-        .data([formattedData])
-        .attr("class", "line")
-        .attr("d", valueline);
-
-    // Add the X Axis
-    svg.append("g")
-        .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(x));
-
-    // Add the Y Axis
-    svg.append("g")
-        .call(d3.axisLeft(y));
-
-    // Add title
-    svg.append("text")
-        .attr("x", (width / 2))             
-        .attr("y", 0 - (margin.top / 2))
-        .attr("text-anchor", "middle")  
-        .style("font-size", "16px") 
-        .style("text-decoration", "underline")  
-        .text(title);
-}
-
 // Populate data table
 function populateTable(data) {
     const tbody = document.querySelector('#pps-table tbody');
@@ -396,6 +306,96 @@ async function initMap() {
             });
         })
         .catch(error => console.error('Error fetching center data:', error));
+}
+
+// Fetch trend data from the API
+async function fetchTrendData(apiUrl) {
+    const proxyUrl = 'https://api.allorigins.win/get?url=';
+    try {
+        const response = await fetch(proxyUrl + encodeURIComponent(apiUrl), {
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        const data = JSON.parse(result.contents);
+        console.log('Fetched trend data:', data);
+
+        return data;
+
+    } catch (error) {
+        console.error('Error fetching trend data:', error);
+        return [];
+    }
+}
+
+// Create line chart for trend data
+function createLineChart(data, selector, title) {
+    const margin = {top: 20, right: 20, bottom: 60, left: 60};
+    const width = document.querySelector(selector).clientWidth - margin.left - margin.right;
+    const height = document.querySelector(selector).clientHeight - margin.top - margin.bottom;
+
+    // Clear previous chart
+    d3.select(selector).html('');
+
+    // Create SVG
+    const svg = d3.select(selector)
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+
+    // Parse the date / time
+    const parseTime = d3.timeParse("%Y-%m-%d");
+
+    // Format the data
+    const formattedData = data.tarikh.map((date, index) => ({
+        date: parseTime(date),
+        value: +data.mangsa?.[index] || +data.masuk?.[index] || +data.balik?.[index]
+    }));
+
+    // Set the ranges
+    const x = d3.scaleTime().range([0, width]);
+    const y = d3.scaleLinear().range([height, 0]);
+
+    // Define the line
+    const valueline = d3.line()
+        .x(d => x(d.date))
+        .y(d => y(d.value));
+
+    // Scale the range of the data
+    x.domain(d3.extent(formattedData, d => d.date));
+    y.domain([0, d3.max(formattedData, d => d.value)]);
+
+    // Add the valueline path.
+    svg.append("path")
+        .data([formattedData])
+        .attr("class", "line")
+        .attr("d", valueline);
+
+    // Add the X Axis
+    svg.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x));
+
+    // Add the Y Axis
+    svg.append("g")
+        .call(d3.axisLeft(y));
+
+    // Add title
+    svg.append("text")
+        .attr("x", (width / 2))             
+        .attr("y", 0 - (margin.top / 2))
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px") 
+        .style("text-decoration", "underline")  
+        .text(title);
 }
 
 // Initialize trend charts
