@@ -382,7 +382,7 @@ function createLineChart(data, selector, title) {
     // Add the X Axis
     svg.append("g")
         .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(x));
+        .call(d3.axisBottom(x).tickFormat(d3.timeFormat("%Y-%m-%d")));
 
     // Add the Y Axis
     svg.append("g")
