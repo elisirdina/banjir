@@ -72,25 +72,11 @@ function getSampleData() {
             jumlah_mangsa: "186"
         },
         {
-            negeri: "KELANTAN",
-            daerah: "PASIR MAS",
-            nama_pps: "SK KUBANG KERIAN",
-            jumlah_keluarga: "45",
-            jumlah_mangsa: "167"
-        },
-        {
             negeri: "TERENGGANU",
             daerah: "BESUT",
             nama_pps: "SK BUKIT PAYONG",
             jumlah_keluarga: "30",
             jumlah_mangsa: "120"
-        },
-        {
-            negeri: "TERENGGANU",
-            daerah: "KUALA TERENGGANU",
-            nama_pps: "SK GONG BADAK",
-            jumlah_keluarga: "25",
-            jumlah_mangsa: "98"
         },
         {
             negeri: "PAHANG",
@@ -402,14 +388,6 @@ function createTrendChart(data, selector, title) {
     svg.append("g")
         .call(d3.axisLeft(y));
 
-    // Add title
-    svg.append("text")
-        .attr("x", (width / 2))             
-        .attr("y", 0 - (margin.top / 2))
-        .attr("text-anchor", "middle")  
-        .style("font-size", "16px") 
-        .style("text-decoration", "underline")  
-        .text(title);
 }
 
 // Initialize trend charts
