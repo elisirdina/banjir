@@ -361,10 +361,10 @@ function createTrendChart(data, selector, title) {
     const parseTime = d3.timeParse("%Y-%m-%d");
 
     // Format the data
-    data.forEach(d => {
-        d.date = parseTime(d.date);
-        d.value = +d.value;
-    });
+    const formattedData = data.tarikh.map((date, index) => ({
+        date: parseTime(date),
+        value: +data.mangsa[index] || +data.masuk[index] || +data.balik[index]
+    }));
 
     // Set the ranges
     const x = d3.scaleTime().range([0, width]);
@@ -376,12 +376,12 @@ function createTrendChart(data, selector, title) {
         .y(d => y(d.value));
 
     // Scale the range of the data
-    x.domain(d3.extent(data, d => d.date));
-    y.domain([0, d3.max(data, d => d.value)]);
+    x.domain(d3.extent(formattedData, d => d.date));
+    y.domain([0, d3.max(formattedData, d => d.value)]);
 
     // Add the valueline path.
     svg.append("path")
-        .data([data])
+        .data([formattedData])
         .attr("class", "line")
         .attr("d", valueline);
 
