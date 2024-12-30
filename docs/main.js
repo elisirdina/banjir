@@ -296,7 +296,8 @@ async function initMap() {
     const proxyUrl = 'https://corsproxy.io/?';
     fetch(proxyUrl + encodeURIComponent(apiUrl))
         .then(response => response.json())
-        .then(data => {
+        .then(result => {
+            const data = JSON.parse(result.contents);
             if (!Array.isArray(data)) {
                 throw new Error('Invalid data format');
             }
