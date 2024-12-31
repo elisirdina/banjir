@@ -437,9 +437,9 @@ async function initDashboard() {
     if (data && data.length > 0) {
         // Prepare chart data
         const chartData = {
-            labels: data.map(item => item.nama_pps), // Extract PPS names
+            labels: data.map(item => item.nama), // Extract PPS names
             datasets: [{
-                data: data.map(item => parseInt(item.jumlah_mangsa)), // Extract evacuee counts
+                data: data.map(item => parseInt(item.mangsa)), // Extract evacuee counts
                 label: 'Number of Evacuees'
             }]
         };
