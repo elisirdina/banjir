@@ -301,7 +301,7 @@ function initMap() {
 async function fetchTrendData(apiUrl) {
     try {
         const proxyUrl = 'https://api.allorigins.win/get?url=';
-        const response = await fetch(proxyUrl + apiUrl, {
+        const response = await fetch(proxyUrl + encodeURIComponent(apiUrl), {
             headers: {
                 'Accept': 'application/json'
             }
@@ -311,13 +311,14 @@ async function fetchTrendData(apiUrl) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const data = await response.json();
+        const result = await response.json();
+        const data = JSON.parse(result.contents);
         console.log('Fetched trend data:', data);
 
         // Ensure data is in the correct format
-        return data.map(item => ({
-            date: new Date(item.date),
-            value: parseInt(item.value)
+        return data.tarikh.map((date, index) => ({
+            date: new Date(date),
+            value: parseInt(data.mangsa[index] || data.masuk[index] || data.balik[index])
         }));
 
     } catch (error) {
