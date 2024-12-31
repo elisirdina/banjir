@@ -72,20 +72,6 @@ function getSampleData() {
             jumlah_mangsa: "186"
         },
         {
-            negeri: "KELANTAN",
-            daerah: "PASIR MAS",
-            nama_pps: "SK KUBANG KERIAN",
-            jumlah_keluarga: "45",
-            jumlah_mangsa: "167"
-        },
-        {
-            negeri: "TERENGGANU",
-            daerah: "BESUT",
-            nama_pps: "SK BUKIT PAYONG",
-            jumlah_keluarga: "30",
-            jumlah_mangsa: "120"
-        },
-        {
             negeri: "TERENGGANU",
             daerah: "KUALA TERENGGANU",
             nama_pps: "SK GONG BADAK",
@@ -277,7 +263,7 @@ function initMap() {
     }).addTo(map);
 
     // Load GeoJSON data using a CORS proxy
-    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+    const proxyUrl = 'https://api.allorigins.win/get?url=';
     const semenanjungGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
     const borneoGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
 
@@ -314,7 +300,7 @@ function initMap() {
 // Fetch trend data from the API
 async function fetchTrendData(apiUrl) {
     try {
-        const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+        const proxyUrl = 'https://api.allorigins.win/get?url=';
         const response = await fetch(proxyUrl + apiUrl, {
             headers: {
                 'Accept': 'application/json'
