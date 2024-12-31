@@ -384,12 +384,8 @@ async function fetchPpsData() {
         }
 
         const result = await response.json();
-        const data = JSON.parse(result.contents);
+        const data = JSON.parse(result.contents).points || []; // Extract the "points" array
         console.log('Fetched PPS data:', data);
-
-        if (!Array.isArray(data)) {
-            throw new Error('Invalid data format');
-        }
 
         return data;
 
@@ -426,7 +422,7 @@ async function createMap() {
     const ppsData = await fetchPpsData();
     ppsData.forEach(center => {
         const marker = L.marker([center.latitude, center.longitude]).addTo(map);
-        marker.bindPopup(`<b>${center.nama}</b><br>${center.daerah}, ${center.negeri}<br>Victims: ${center.jumlah_mangsa}`);
+        marker.bindPopup(`<b>${center.nama}</b><br>${center.daerah}, ${center.negeri}<br>Victims: ${center.mangsa}`);
     });
 }
 
