@@ -298,7 +298,7 @@ function initMap() {
 }
 
 // Fetch trend data from the API
-async function fetchTrendData(apiUrl) {
+async function fetchTrendData(apiUrl, key) {
     try {
         const proxyUrl = 'https://api.allorigins.win/get?url=';
         const response = await fetch(proxyUrl + encodeURIComponent(apiUrl), {
@@ -318,7 +318,7 @@ async function fetchTrendData(apiUrl) {
         // Ensure data is in the correct format
         return data.tarikh.map((date, index) => ({
             date: new Date(date),
-            value: parseInt(data.mangsa[index] || data.masuk[index] || data.balik[index])
+            value: parseInt(data[key][index])
         }));
 
     } catch (error) {
@@ -376,9 +376,9 @@ async function initLineCharts() {
     const trendMasukApiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-aliran-trend-masuk.php?a=0&b=0&seasonmain_id=209&seasonnegeri_id=';
     const trendBalikApiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-aliran-trend-balik.php?a=0&b=0&seasonmain_id=209&seasonnegeri_id=';
 
-    const trendData = await fetchTrendData(trendApiUrl);
-    const trendMasukData = await fetchTrendData(trendMasukApiUrl);
-    const trendBalikData = await fetchTrendData(trendBalikApiUrl);
+    const trendData = await fetchTrendData(trendApiUrl, 'mangsa');
+    const trendMasukData = await fetchTrendData(trendMasukApiUrl, 'masuk');
+    const trendBalikData = await fetchTrendData(trendBalikApiUrl, 'balik');
 
     createLineChart(trendData, 'trend-chart', 'Trends of Victims Throughout the Date');
     createLineChart(trendMasukData, 'trend-masuk-chart', 'Trends of Victims Going into PPS');
