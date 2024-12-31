@@ -342,8 +342,8 @@ async function initLineCharts() {
     createLineChart(trendBalikData, 'trend-balik-chart', 'Trends of Victims Going out of PPS');
 }
 
-// Fetch GeoJSON data from the API with retry logic
-async function fetchGeoJsonData(url, retries = 3) {
+// Fetch GeoJSON data from the API
+async function fetchGeoJsonData(url) {
     try {
         const proxyUrl = 'https://api.allorigins.win/get?url=';
         const response = await fetch(proxyUrl + encodeURIComponent(url), {
@@ -364,17 +364,12 @@ async function fetchGeoJsonData(url, retries = 3) {
 
     } catch (error) {
         console.error('Error fetching GeoJSON data:', error);
-        if (retries > 0) {
-            console.log(`Retrying... (${retries} attempts left)`);
-            return fetchGeoJsonData(url, retries - 1);
-        } else {
-            return null;
-        }
+        return null;
     }
 }
 
-// Fetch PPS data from the API with retry logic
-async function fetchPpsData(retries = 3) {
+// Fetch PPS data from the API
+async function fetchPpsData() {
     try {
         const proxyUrl = 'https://api.allorigins.win/get?url=';
         const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
@@ -400,12 +395,7 @@ async function fetchPpsData(retries = 3) {
 
     } catch (error) {
         console.error('Error fetching PPS data:', error);
-        if (retries > 0) {
-            console.log(`Retrying... (${retries} attempts left)`);
-            return fetchPpsData(retries - 1);
-        } else {
-            return [];
-        }
+        return [];
     }
 }
 
