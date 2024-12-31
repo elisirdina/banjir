@@ -328,7 +328,11 @@ async function fetchTrendData(apiUrl) {
         const data = await response.json();
         console.log('Fetched trend data:', data);
 
-        return data;
+        // Ensure data is in the correct format
+        return data.map(item => ({
+            date: new Date(item.date),
+            value: parseInt(item.value)
+        }));
 
     } catch (error) {
         console.error('Error fetching trend data:', error);
@@ -338,7 +342,7 @@ async function fetchTrendData(apiUrl) {
 
 // Create line chart for trends
 function createLineChart(data, elementId, label) {
-    const svg = d3.select(`#${elementId} .chart-area`)
+    const svg = d3.select(`#${elementId} .line-chart-area`)
         .append('svg')
         .attr('width', '100%')
         .attr('height', '100%')
@@ -353,7 +357,7 @@ function createLineChart(data, elementId, label) {
         .attr('transform', `translate(${margin.left},${margin.top})`);
 
     const x = d3.scaleTime()
-        .domain(d3.extent(data, d => new Date(d.date)))
+        .domain(d3.extent(data, d => d.date))
         .range([0, width]);
 
     const y = d3.scaleLinear()
@@ -361,7 +365,7 @@ function createLineChart(data, elementId, label) {
         .range([height, 0]);
 
     const line = d3.line()
-        .x(d => x(new Date(d.date)))
+        .x(d => x(d.date))
         .y(d => y(d.value));
 
     g.append('g')
