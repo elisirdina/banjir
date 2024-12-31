@@ -384,10 +384,14 @@ async function fetchPpsData() {
         }
 
         const result = await response.json();
-        const data = JSON.parse(result.contents).points || []; // Extract the "points" array
+        const data = JSON.parse(result.contents);
         console.log('Fetched PPS data:', data);
 
-        return data;
+        if (!Array.isArray(data.points)) {
+            throw new Error('Invalid data format');
+        }
+
+        return data.points;
 
     } catch (error) {
         console.error('Error fetching PPS data:', error);
