@@ -72,11 +72,25 @@ function getSampleData() {
             jumlah_mangsa: "186"
         },
         {
+            negeri: "KELANTAN",
+            daerah: "PASIR MAS",
+            nama_pps: "SK KUBANG KERIAN",
+            jumlah_keluarga: "45",
+            jumlah_mangsa: "167"
+        },
+        {
             negeri: "TERENGGANU",
             daerah: "BESUT",
             nama_pps: "SK BUKIT PAYONG",
             jumlah_keluarga: "30",
             jumlah_mangsa: "120"
+        },
+        {
+            negeri: "TERENGGANU",
+            daerah: "KUALA TERENGGANU",
+            nama_pps: "SK GONG BADAK",
+            jumlah_keluarga: "25",
+            jumlah_mangsa: "98"
         },
         {
             negeri: "PAHANG",
@@ -254,50 +268,38 @@ function updateTimestamp() {
     document.getElementById('last-updated').textContent = `Last updated: ${now.toLocaleDateString('en-MY', options)}`;
 }
 
-// Fetch GeoJSON data using a CORS proxy
-async function fetchGeoJsonData(url) {
-    const proxyUrl = 'https://corsproxy.io/?';
-    try {
-        const response = await fetch(proxyUrl + encodeURIComponent(url));
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const result = await response.json();
-        return JSON.parse(result.contents);
-    } catch (error) {
-        console.error(`Error fetching GeoJSON data from ${url}:`, error);
-        return null;
-    }
-}
-
 // Initialize the map
-async function initMap() {
+function initMap() {
     const map = L.map('map').setView([4.2105, 101.9758], 6); // Centered on Malaysia
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
+    // Load GeoJSON data using a CORS proxy
+    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
     const semenanjungGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
     const borneoGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
 
-    const semenanjungData = await fetchGeoJsonData(semenanjungGeoJsonUrl);
-    if (semenanjungData) {
-        L.geoJSON(semenanjungData).addTo(map);
-    }
+    fetch(proxyUrl + semenanjungGeoJsonUrl)
+        .then(response => response.json())
+        .then(data => {
+            L.geoJSON(data).addTo(map);
+        })
+        .catch(error => console.error('Error fetching semenanjung GeoJSON:', error));
 
-    const borneoData = await fetchGeoJsonData(borneoGeoJsonUrl);
-    if (borneoData) {
-        L.geoJSON(borneoData).addTo(map);
-    }
+    fetch(proxyUrl + borneoGeoJsonUrl)
+        .then(response => response.json())
+        .then(data => {
+            L.geoJSON(data).addTo(map);
+        })
+        .catch(error => console.error('Error fetching borneo GeoJSON:', error));
 
     // Fetch and display data from the API
     const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
-    const proxyUrl = 'https://corsproxy.io/?';
-    fetch(proxyUrl + encodeURIComponent(apiUrl))
+    fetch(proxyUrl + apiUrl)
         .then(response => response.json())
-        .then(result => {
-            const data = JSON.parse(result.contents);
+        .then(data => {
             if (!Array.isArray(data)) {
                 throw new Error('Invalid data format');
             }
@@ -311,9 +313,9 @@ async function initMap() {
 
 // Fetch trend data from the API
 async function fetchTrendData(apiUrl) {
-    const proxyUrl = 'https://api.allorigins.win/get?url=';
     try {
-        const response = await fetch(proxyUrl + encodeURIComponent(apiUrl), {
+        const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+        const response = await fetch(proxyUrl + apiUrl, {
             headers: {
                 'Accept': 'application/json'
             }
@@ -323,8 +325,7 @@ async function fetchTrendData(apiUrl) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const result = await response.json();
-        const data = JSON.parse(result.contents);
+        const data = await response.json();
         console.log('Fetched trend data:', data);
 
         return data;
@@ -335,79 +336,70 @@ async function fetchTrendData(apiUrl) {
     }
 }
 
-// Create line chart for trend data
-function createLineChart(data, selector, title) {
-    const margin = {top: 20, right: 20, bottom: 60, left: 60};
-    const width = document.querySelector(selector).clientWidth - margin.left - margin.right;
-    const height = document.querySelector(selector).clientHeight - margin.top - margin.bottom;
-
-    // Clear previous chart
-    d3.select(selector).html('');
-
-    // Create SVG
-    const svg = d3.select(selector)
+// Create line chart for trends
+function createLineChart(data, elementId, label) {
+    const svg = d3.select(`#${elementId} .chart-area`)
         .append('svg')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom)
-        .append('g')
+        .attr('width', '100%')
+        .attr('height', '100%')
+        .attr('viewBox', '0 0 800 400')
+        .attr('preserveAspectRatio', 'xMidYMid meet');
+
+    const margin = { top: 20, right: 30, bottom: 30, left: 40 };
+    const width = 800 - margin.left - margin.right;
+    const height = 400 - margin.top - margin.bottom;
+
+    const g = svg.append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    // Parse the date / time
-    const parseTime = d3.timeParse("%Y-%m-%d");
+    const x = d3.scaleTime()
+        .domain(d3.extent(data, d => new Date(d.date)))
+        .range([0, width]);
 
-    // Format the data
-    const formattedData = data.tarikh.map((date, index) => ({
-        date: parseTime(date),
-        value: +data.mangsa?.[index] || +data.masuk?.[index] || +data.balik?.[index]
-    })).filter(d => !isNaN(d.value));
+    const y = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d.value)])
+        .range([height, 0]);
 
-    // Set the ranges
-    const x = d3.scaleTime().range([0, width]);
-    const y = d3.scaleLinear().range([height, 0]);
-
-    // Define the line
-    const valueline = d3.line()
-        .x(d => x(d.date))
+    const line = d3.line()
+        .x(d => x(new Date(d.date)))
         .y(d => y(d.value));
 
-    // Scale the range of the data
-    x.domain(d3.extent(formattedData, d => d.date));
-    y.domain([0, d3.max(formattedData, d => d.value)]);
+    g.append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(x));
 
-    // Add the valueline path.
-    svg.append("path")
-        .data([formattedData])
-        .attr("class", "line")
-        .attr("d", valueline);
-
-    // Add the X Axis
-    svg.append("g")
-        .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(x).tickFormat(d3.timeFormat("%Y-%m-%d")));
-
-    // Add the Y Axis
-    svg.append("g")
+    g.append('g')
         .call(d3.axisLeft(y));
 
-    // Add title
-    svg.append("text")
-        .attr("x", (width / 2))             
-        .attr("y", 0 - (margin.top / 2))
-        .attr("text-anchor", "middle")  
-        .style("font-size", "16px") 
-        .style("text-decoration", "underline")  
-        .text(title);
+    g.append('path')
+        .datum(data)
+        .attr('fill', 'none')
+        .attr('stroke', '#3498db')
+        .attr('stroke-width', 1.5)
+        .attr('d', line);
+
+    g.append('text')
+        .attr('x', width / 2)
+        .attr('y', -10)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '16px')
+        .attr('fill', '#2c3e50')
+        .text(label);
 }
 
-// Initialize trend charts
-async function initTrendCharts() {
-    const trendData = await fetchTrendData('https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-aliran-trend.php?a=0&b=0&seasonmain_id=209&seasonnegeri_id=');
-    const trendMasukData = await fetchTrendData('https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-aliran-trend-masuk.php?a=0&b=0&seasonmain_id=209&seasonnegeri_id=');
-    const trendBalikData = await fetchTrendData('https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-aliran-trend-balik.php?a=0&b=0&seasonmain_id=209&seasonnegeri_id=');
+// Initialize line charts
+async function initLineCharts() {
+    const trendApiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-aliran-trend.php?a=0&b=0&seasonmain_id=209&seasonnegeri_id=';
+    const trendMasukApiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-aliran-trend-masuk.php?a=0&b=0&seasonmain_id=209&seasonnegeri_id=';
+    const trendBalikApiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/data-dashboard-aliran-trend-balik.php?a=0&b=0&seasonmain_id=209&seasonnegeri_id=';
 
-    createLineChart(trendData, '#trend-chart', 'Trend of Victims Throughout the Date');
-    createLineChart(trendMasukData, '#trend-masuk-chart', 'Trend of Victims Going into the PPS');
-    createLineChart(trendBalikData, '#trend-balik-chart', 'Trend of Victims Going Out of the PPS');
+    const trendData = await fetchTrendData(trendApiUrl);
+    const trendMasukData = await fetchTrendData(trendMasukApiUrl);
+    const trendBalikData = await fetchTrendData(trendBalikApiUrl);
+
+    createLineChart(trendData, 'trend-chart', 'Trends of Victims Throughout the Date');
+    createLineChart(trendMasukData, 'trend-masuk-chart', 'Trends of Victims Going into PPS');
+    createLineChart(trendBalikData, 'trend-balik-chart', 'Trends of Victims Going out of PPS');
 }
 
 // Initialize dashboard
@@ -456,5 +448,5 @@ window.addEventListener('resize', () => {
 document.addEventListener('DOMContentLoaded', () => {
     initDashboard();
     initMap();
-    initTrendCharts();
+    initLineCharts();
 });
