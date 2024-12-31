@@ -345,8 +345,8 @@ async function initLineCharts() {
 // Fetch GeoJSON data from the API
 async function fetchGeoJsonData(url) {
     try {
-        const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-        const response = await fetch(proxyUrl + url, {
+        const proxyUrl = 'https://api.allorigins.win/get?url=';
+        const response = await fetch(proxyUrl + encodeURIComponent(url), {
             headers: {
                 'Accept': 'application/json'
             }
@@ -356,7 +356,8 @@ async function fetchGeoJsonData(url) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const data = await response.json();
+        const result = await response.json();
+        const data = JSON.parse(result.contents);
         console.log('Fetched GeoJSON data:', data);
 
         return data;
@@ -370,9 +371,9 @@ async function fetchGeoJsonData(url) {
 // Fetch PPS data from the API
 async function fetchPpsData() {
     try {
-        const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+        const proxyUrl = 'https://api.allorigins.win/get?url=';
         const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
-        const response = await fetch(proxyUrl + apiUrl, {
+        const response = await fetch(proxyUrl + encodeURIComponent(apiUrl), {
             headers: {
                 'Accept': 'application/json'
             }
@@ -382,7 +383,8 @@ async function fetchPpsData() {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const data = await response.json();
+        const result = await response.json();
+        const data = JSON.parse(result.contents);
         console.log('Fetched PPS data:', data);
 
         if (!Array.isArray(data.points)) {
