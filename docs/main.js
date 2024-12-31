@@ -381,14 +381,6 @@ function createLineChart(data, elementId, label) {
         .attr('stroke', '#3498db')
         .attr('stroke-width', 1.5)
         .attr('d', line);
-
-    g.append('text')
-        .attr('x', width / 2)
-        .attr('y', -10)
-        .attr('text-anchor', 'middle')
-        .attr('font-size', '16px')
-        .attr('fill', '#2c3e50')
-        .text(label);
 }
 
 // Initialize line charts
