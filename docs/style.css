@@ -67,8 +67,7 @@ header h1 {
 }
 
 /* Chart container */
-.chart-container,
-.chart-container-trend {
+.chart-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
     gap: 2rem;
@@ -82,15 +81,31 @@ header h1 {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.chart h3,
-.table-container h3 {
+.chart h3 {
     margin-bottom: 1rem;
     color: #2c3e50;
-    font-size: 1.25rem; /* Ensure consistent font size */
 }
 
 .chart-area {
     height: 300px;
+}
+
+/* Line chart container */
+.line-chart-container {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.line-chart-container h3 {
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+.line-chart-area {
+    height: 400px;
 }
 
 /* Map container */
@@ -112,6 +127,11 @@ header h1 {
     -webkit-overflow-scrolling: touch;
     margin: 0 -1.5rem;
     padding: 0 1.5rem;
+}
+
+.table-container h3 {
+    margin-bottom: 1rem;
+    color: #2c3e50;
 }
 
 table {
