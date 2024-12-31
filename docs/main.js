@@ -421,8 +421,10 @@ async function createMap() {
     // Fetch and display PPS data
     const ppsData = await fetchPpsData();
     ppsData.forEach(center => {
-        const marker = L.marker([center.latitude, center.longitude]).addTo(map);
-        marker.bindPopup(`<b>${center.nama}</b><br>${center.daerah}, ${center.negeri}<br>Victims: ${center.mangsa}`);
+        if (center.latitude && center.longitude) {
+            const marker = L.marker([center.latitude, center.longitude]).addTo(map);
+            marker.bindPopup(`<b>${center.name}</b><br>${center.daerah}, ${center.negeri}<br>Victims: ${center.mangsa}`);
+        }
     });
 }
 
