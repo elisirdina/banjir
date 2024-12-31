@@ -254,49 +254,6 @@ function updateTimestamp() {
     document.getElementById('last-updated').textContent = `Last updated: ${now.toLocaleDateString('en-MY', options)}`;
 }
 
-// Initialize the map
-function initMap() {
-    const map = L.map('map').setView([4.2105, 101.9758], 6); // Centered on Malaysia
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    // Load GeoJSON data using a CORS proxy
-    const proxyUrl = 'https://api.allorigins.win/get?url=';
-    const semenanjungGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
-    const borneoGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
-
-    fetch(proxyUrl + semenanjungGeoJsonUrl)
-        .then(response => response.json())
-        .then(data => {
-            L.geoJSON(data).addTo(map);
-        })
-        .catch(error => console.error('Error fetching semenanjung GeoJSON:', error));
-
-    fetch(proxyUrl + borneoGeoJsonUrl)
-        .then(response => response.json())
-        .then(data => {
-            L.geoJSON(data).addTo(map);
-        })
-        .catch(error => console.error('Error fetching borneo GeoJSON:', error));
-
-    // Fetch and display data from the API
-    const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
-    fetch(proxyUrl + apiUrl)
-        .then(response => response.json())
-        .then(data => {
-            if (!Array.isArray(data)) {
-                throw new Error('Invalid data format');
-            }
-            data.forEach(center => {
-                const marker = L.marker([center.latitude, center.longitude]).addTo(map);
-                marker.bindPopup(`<b>${center.nama}</b><br>${center.daerah}, ${center.negeri}<br>Victims: ${center.jumlah_mangsa}`);
-            });
-        })
-        .catch(error => console.error('Error fetching center data:', error));
-}
-
 // Fetch trend data from the API
 async function fetchTrendData(apiUrl, key) {
     try {
@@ -385,6 +342,92 @@ async function initLineCharts() {
     createLineChart(trendBalikData, 'trend-balik-chart', 'Trends of Victims Going out of PPS');
 }
 
+// Fetch GeoJSON data from the API
+async function fetchGeoJsonData(url) {
+    try {
+        const proxyUrl = 'https://api.allorigins.win/get?url=';
+        const response = await fetch(proxyUrl + url, {
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Fetched GeoJSON data:', data);
+
+        return data;
+
+    } catch (error) {
+        console.error('Error fetching GeoJSON data:', error);
+        return null;
+    }
+}
+
+// Fetch PPS data from the API
+async function fetchPpsData() {
+    try {
+        const proxyUrl = 'https://api.allorigins.win/get?url=';
+        const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
+        const response = await fetch(proxyUrl + apiUrl, {
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Fetched PPS data:', data);
+
+        if (!Array.isArray(data)) {
+            throw new Error('Invalid data format');
+        }
+
+        return data;
+
+    } catch (error) {
+        console.error('Error fetching PPS data:', error);
+        return [];
+    }
+}
+
+// Create the map and add PPS data
+async function createMap() {
+    const map = L.map('map').setView([4.2105, 101.9758], 6); // Centered on Malaysia
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Load GeoJSON data
+    const semenanjungGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
+    const borneoGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
+
+    const semenanjungGeoJson = await fetchGeoJsonData(semenanjungGeoJsonUrl);
+    const borneoGeoJson = await fetchGeoJsonData(borneoGeoJsonUrl);
+
+    if (semenanjungGeoJson) {
+        L.geoJSON(semenanjungGeoJson).addTo(map);
+    }
+
+    if (borneoGeoJson) {
+        L.geoJSON(borneoGeoJson).addTo(map);
+    }
+
+    // Fetch and display PPS data
+    const ppsData = await fetchPpsData();
+    ppsData.forEach(center => {
+        const marker = L.marker([center.latitude, center.longitude]).addTo(map);
+        marker.bindPopup(`<b>${center.nama}</b><br>${center.daerah}, ${center.negeri}<br>Victims: ${center.jumlah_mangsa}`);
+    });
+}
+
 // Initialize dashboard
 async function initDashboard() {
     // Show loading state
@@ -430,6 +473,6 @@ window.addEventListener('resize', () => {
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     initDashboard();
-    initMap();
+    createMap();
     initLineCharts();
 });
