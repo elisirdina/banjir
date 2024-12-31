@@ -345,8 +345,8 @@ async function initLineCharts() {
 // Fetch GeoJSON data from the API
 async function fetchGeoJsonData(url) {
     try {
-        const proxyUrl = 'https://thingproxy.freeboard.io/fetch/';
-        const response = await fetch(proxyUrl + url, {
+        const proxyUrl = 'https://api.allorigins.win/get?url=';
+        const response = await fetch(proxyUrl + encodeURIComponent(url), {
             headers: {
                 'Accept': 'application/json'
             }
@@ -356,7 +356,8 @@ async function fetchGeoJsonData(url) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const data = await response.json();
+        const result = await response.json();
+        const data = JSON.parse(result.contents);
         console.log('Fetched GeoJSON data:', data);
 
         return data;
@@ -370,9 +371,9 @@ async function fetchGeoJsonData(url) {
 // Fetch PPS data from the API
 async function fetchPpsData() {
     try {
-        const proxyUrl = 'https://thingproxy.freeboard.io/fetch/';
+        const proxyUrl = 'https://api.allorigins.win/get?url=';
         const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
-        const response = await fetch(proxyUrl + apiUrl, {
+        const response = await fetch(proxyUrl + encodeURIComponent(apiUrl), {
             headers: {
                 'Accept': 'application/json'
             }
@@ -383,8 +384,12 @@ async function fetchPpsData() {
         }
 
         const result = await response.json();
-        const data = JSON.parse(result.contents).points || []; // Extract the "points" array
+        const data = JSON.parse(result.contents);
         console.log('Fetched PPS data:', data);
+
+        if (!Array.isArray(data)) {
+            throw new Error('Invalid data format');
+        }
 
         return data;
 
@@ -421,7 +426,7 @@ async function createMap() {
     const ppsData = await fetchPpsData();
     ppsData.forEach(center => {
         const marker = L.marker([center.latitude, center.longitude]).addTo(map);
-        marker.bindPopup(`<b>${center.name}</b><br>${center.daerah}, ${center.negeri}<br>Victims: ${center.mangsa}`);
+        marker.bindPopup(`<b>${center.nama}</b><br>${center.daerah}, ${center.negeri}<br>Victims: ${center.jumlah_mangsa}`);
     });
 }
 
