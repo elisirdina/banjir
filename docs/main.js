@@ -398,13 +398,17 @@ async function fetchPpsData() {
     }
 }
 
+let map;
+
 // Create the map and add PPS data
 async function createMap() {
-    const map = L.map('map').setView([4.2105, 101.9758], 6); // Centered on Malaysia
+    if (!map) {
+        map = L.map('map').setView([4.2105, 101.9758], 6); // Centered on Malaysia
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19
-    }).addTo(map);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19
+        }).addTo(map);
+    }
 
     const semenanjungGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
     const borneoGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
