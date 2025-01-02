@@ -372,7 +372,7 @@ async function fetchPpsData() {
     try {
         const proxyUrl = 'https://api.allorigins.win/get?url=';
         const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
-        const response = await fetch(proxyUrl + apiUrl, {
+        const response = await fetch(proxyUrl + encodeURIComponent(apiUrl), {
             headers: {
                 'Accept': 'application/json'
             }
@@ -383,13 +383,14 @@ async function fetchPpsData() {
         }
 
         const data = await response.json();
-        console.log('Fetched PPS data:', data);
+        const parsedData = JSON.parse(data.contents);
 
-        if (!Array.isArray(data)) {
+        if (!Array.isArray(parsedData.points)) {
             throw new Error('Invalid data format');
         }
+        console.log('Fetched PPS data:', parsedData.points);
 
-        return data;
+        return parsedData.points;
 
     } catch (error) {
         console.error('Error fetching PPS data:', error);
