@@ -345,7 +345,7 @@ async function initLineCharts() {
 // Fetch GeoJSON data from the API
 async function fetchGeoJsonData(url) {
     try {
-        const proxyUrl = 'https://corsproxy.io/?';
+        const proxyUrl = 'https://api.allorigins.win/get?url=';
         const response = await fetch(proxyUrl + encodeURIComponent(url), {
             headers: {
                 'Accept': 'application/json'
@@ -370,7 +370,7 @@ async function fetchGeoJsonData(url) {
 // Fetch PPS data from the API
 async function fetchPpsData() {
     try {
-        const proxyUrl = 'https://corsproxy.io/?';
+        const proxyUrl = 'https://api.allorigins.win/get?url=';
         const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
         const response = await fetch(proxyUrl + encodeURIComponent(apiUrl), {
             headers: {
@@ -467,6 +467,8 @@ async function initDashboard() {
         document.querySelector('#pps-table tbody').innerHTML = '<tr><td colspan="5">Error loading table data</td></tr>';
         document.getElementById('last-updated').textContent = 'Failed to update data';
     }
+
+    await createMap();
 }
 
 // Handle window resize
