@@ -345,8 +345,8 @@ async function initLineCharts() {
 // Fetch GeoJSON data from the API
 async function fetchGeoJsonData(url) {
     try {
-        const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-        const response = await fetch(proxyUrl + url, {
+        const proxyUrl = 'https://api.allorigins.win/get?url=';
+        const response = await fetch(proxyUrl + encodeURIComponent(url), {
             headers: {
                 'Accept': 'application/json'
             }
@@ -357,9 +357,9 @@ async function fetchGeoJsonData(url) {
         }
 
         const data = await response.json();
-        console.log('Fetched GeoJSON data:', data);
+        const parsedData = JSON.parse(data.contents);
 
-        return data;
+        return parsedData;
 
     } catch (error) {
         console.error('Error fetching GeoJSON data:', error);
@@ -403,29 +403,30 @@ async function createMap() {
     const map = L.map('map').setView([4.2105, 101.9758], 6); // Centered on Malaysia
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        maxZoom: 19
     }).addTo(map);
 
-    // Load GeoJSON data
     const semenanjungGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_semenanjung.geojson';
     const borneoGeoJsonUrl = 'https://infobencanajkmv2.jkm.gov.my/assets/data/malaysia/arcgis_district_borneo.geojson';
 
-    const semenanjungGeoJson = await fetchGeoJsonData(semenanjungGeoJsonUrl);
-    const borneoGeoJson = await fetchGeoJsonData(borneoGeoJsonUrl);
+    const semenanjungData = await fetchGeoJsonData(semenanjungGeoJsonUrl);
+    const borneoData = await fetchGeoJsonData(borneoGeoJsonUrl);
 
-    if (semenanjungGeoJson) {
-        L.geoJSON(semenanjungGeoJson).addTo(map);
+    if (semenanjungData) {
+        L.geoJSON(semenanjungData).addTo(map);
     }
 
-    if (borneoGeoJson) {
-        L.geoJSON(borneoGeoJson).addTo(map);
+    if (borneoData) {
+        L.geoJSON(borneoData).addTo(map);
     }
 
-    // Fetch and display PPS data
     const ppsData = await fetchPpsData();
-    ppsData.forEach(center => {
-        const marker = L.marker([center.latitude, center.longitude]).addTo(map);
-        marker.bindPopup(`<b>${center.nama}</b><br>${center.daerah}, ${center.negeri}<br>Victims: ${center.jumlah_mangsa}`);
+
+    ppsData.forEach(point => {
+        if (point.latti && point.longi) {
+            L.marker([point.latti, point.longi]).addTo(map)
+                .bindPopup(`<b>${point.name}</b><br>${point.negeri}, ${point.daerah}`);
+        }
     });
 }
 
