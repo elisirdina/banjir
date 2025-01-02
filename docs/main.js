@@ -418,10 +418,14 @@ async function createMap() {
 
     if (semenanjungData) {
         L.geoJSON(semenanjungData).addTo(map);
+    } else {
+        console.error('Failed to load semenanjung GeoJSON data');
     }
 
     if (borneoData) {
         L.geoJSON(borneoData).addTo(map);
+    } else {
+        console.error('Failed to load borneo GeoJSON data');
     }
 
     const ppsData = await fetchPpsData();
