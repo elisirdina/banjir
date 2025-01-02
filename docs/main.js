@@ -383,6 +383,7 @@ async function fetchPpsData() {
         }
 
         const data = await response.json();
+        
         console.log('Fetched PPS data:', data);
 
         if (!Array.isArray(data)) {
