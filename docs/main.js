@@ -387,11 +387,11 @@ async function fetchPpsData() {
         const data = JSON.parse(result.contents);
         console.log('Fetched PPS data:', data);
 
-        if (!Array.isArray(data.points)) {
+        if (!Array.isArray(data)) {
             throw new Error('Invalid data format');
         }
 
-        return data.points;
+        return data;
 
     } catch (error) {
         console.error('Error fetching PPS data:', error);
@@ -425,10 +425,8 @@ async function createMap() {
     // Fetch and display PPS data
     const ppsData = await fetchPpsData();
     ppsData.forEach(center => {
-        if (center.latitude && center.longitude) {
-            const marker = L.marker([center.latitude, center.longitude]).addTo(map);
-            marker.bindPopup(`<b>${center.name}</b><br>${center.daerah}, ${center.negeri}<br>Victims: ${center.mangsa}`);
-        }
+        const marker = L.marker([center.latitude, center.longitude]).addTo(map);
+        marker.bindPopup(`<b>${center.nama}</b><br>${center.daerah}, ${center.negeri}<br>Victims: ${center.jumlah_mangsa}`);
     });
 }
 
@@ -443,9 +441,9 @@ async function initDashboard() {
     if (data && data.length > 0) {
         // Prepare chart data
         const chartData = {
-            labels: data.map(item => item.nama), // Extract PPS names
+            labels: data.map(item => item.nama_pps), // Extract PPS names
             datasets: [{
-                data: data.map(item => parseInt(item.mangsa)), // Extract evacuee counts
+                data: data.map(item => parseInt(item.jumlah_mangsa)), // Extract evacuee counts
                 label: 'Number of Evacuees'
             }]
         };
