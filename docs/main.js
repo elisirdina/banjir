@@ -370,7 +370,7 @@ async function fetchGeoJsonData(url) {
 // Fetch PPS data from the API
 async function fetchPpsData() {
     try {
-        const proxyUrl = 'https://corsproxy.io/?';
+        const proxyUrl = 'https://api.allorigins.win/get?url=';
         const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
         const response = await fetch(proxyUrl + apiUrl, {
             headers: {
