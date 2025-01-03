@@ -345,8 +345,8 @@ async function initLineCharts() {
 // Fetch GeoJSON data from the API
 async function fetchGeoJsonData(url) {
     try {
-        const proxyUrl = 'https://api.allorigins.win/get?url=';
-        const response = await fetch(proxyUrl + encodeURIComponent(url), {
+        const proxyUrl = 'https://cors.bridged.cc/';
+        const response = await fetch(proxyUrl + url, {
             headers: {
                 'Accept': 'application/json'
             }
@@ -357,9 +357,9 @@ async function fetchGeoJsonData(url) {
         }
 
         const data = await response.json();
-        const parsedData = JSON.parse(data.contents);
+        console.log('Fetched GeoJSON data:', data);
 
-        return parsedData;
+        return data;
 
     } catch (error) {
         console.error('Error fetching GeoJSON data:', error);
@@ -370,9 +370,9 @@ async function fetchGeoJsonData(url) {
 // Fetch PPS data from the API
 async function fetchPpsData() {
     try {
-        const proxyUrl = 'https://api.allorigins.win/get?url=';
+        const proxyUrl = 'https://cors.bridged.cc/';
         const apiUrl = 'https://infobencanajkmv2.jkm.gov.my/api/pusat-buka.php?a=0&b=0';
-        const response = await fetch(proxyUrl + encodeURIComponent(apiUrl), {
+        const response = await fetch(proxyUrl + apiUrl, {
             headers: {
                 'Accept': 'application/json'
             }
@@ -383,14 +383,13 @@ async function fetchPpsData() {
         }
 
         const data = await response.json();
-        const parsedData = JSON.parse(data.contents);
+        console.log('Fetched PPS data:', data);
 
-        if (!Array.isArray(parsedData.points)) {
+        if (!Array.isArray(data)) {
             throw new Error('Invalid data format');
         }
-        console.log('Fetched PPS data:', parsedData.points);
 
-        return parsedData.points;
+        return data;
 
     } catch (error) {
         console.error('Error fetching PPS data:', error);
